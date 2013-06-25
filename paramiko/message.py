@@ -277,7 +277,7 @@ class Message (object):
         elif type(i) is int:
             return self.add_int(i)
         elif type(i) is long:
-            if i > 0xffffffffL:
+            if i > 0xffffffff:
                 return self.add_mpint(i)
             else:
                 return self.add_int(i)

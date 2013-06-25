@@ -36,6 +36,7 @@ from paramiko.rsakey import RSAKey
 from paramiko.ssh_exception import SSHException, BadHostKeyException
 from paramiko.transport import Transport
 from paramiko.util import retry_on_signal
+import six
 
 
 class MissingHostKeyPolicy (object):
@@ -193,8 +194,8 @@ class SSHClient (object):
             self.load_host_keys(self.known_hosts)
 
         f = open(filename, 'w')
-        for hostname, keys in self._host_keys.iteritems():
-            for keytype, key in keys.iteritems():
+        for hostname, keys in six.iteritems(self._host_keys):
+            for keytype, key in six.iteritems(keys):
                 f.write('%s %s %s\n' % (hostname, keytype, key.get_base64()))
         f.close()
 
@@ -452,7 +453,7 @@ class SSHClient (object):
                 two_factor = (allowed_types == ['password'])
                 if not two_factor:
                     return
-            except SSHException, e:
+            except SSHException as e:
                 saved_exception = e
 
         if not two_factor:
@@ -466,7 +467,7 @@ class SSHClient (object):
                         if not two_factor:
                             return
                         break
-                    except SSHException, e:
+                    except SSHException as e:
                         saved_exception = e
 
         if not two_factor and allow_agent:
@@ -482,7 +483,7 @@ class SSHClient (object):
                     if not two_factor:
                         return
                     break
-                except SSHException, e:
+                except SSHException as e:
                     saved_exception = e
 
         if not two_factor:
@@ -514,16 +515,16 @@ class SSHClient (object):
                     if not two_factor:
                         return
                     break
-                except SSHException, e:
+                except SSHException as e:
                     saved_exception = e
-                except IOError, e:
+                except IOError as e:
                     saved_exception = e
 
         if password is not None:
             try:
                 self._transport.auth_password(username, password)
                 return
-            except SSHException, e:
+            except SSHException as e:
                 saved_exception = e
         elif two_factor:
             raise SSHException('Two-factor authentication requires a password')

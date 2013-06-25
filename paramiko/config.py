@@ -25,6 +25,7 @@ import fnmatch
 import os
 import re
 import socket
+import six
 
 SSH_PORT = 22
 proxy_re = re.compile(r"^(proxycommand)\s*=*\s*(.*)", re.I)
@@ -163,7 +164,7 @@ class SSHConfig (object):
 
         ret = {}
         for match in matches:
-            for key, value in match['config'].iteritems():
+            for key, value in six.iteritems(match['config']):
                 if key not in ret:
                     # Create a copy of the original value,
                     # else it will reference the original list
