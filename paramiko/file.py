@@ -20,7 +20,7 @@
 BufferedFile.
 """
 
-from cStringIO import StringIO
+from six.moves import StringIO
 
 
 class BufferedFile (object):
