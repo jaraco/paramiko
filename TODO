@@ -1,3 +1,11 @@
+Python 2/3 port related
+=======================
+* Refactor transport.py (lot's of repetition)
+* Verify if transport.py filters really need to be lists instead of iterators
+* hostkeys.py has cruft from pre 2.4 (some comments about sets being nice)
+
+Other stuff
+===========
 * Change license to BSD for v1.8 (obtain permission from Robey)
 * Pending that, remove preamble from all files, ensure LICENSE is still correct
 * Update version stuff: use an execfile'd paramiko/_version.py
