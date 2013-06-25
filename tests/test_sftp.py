@@ -31,7 +31,7 @@ import warnings
 import sys
 import threading
 import unittest
-import StringIO
+from six.moves import StringIO
 
 import paramiko
 from stub_sftp import StubServer, StubSFTPServer
@@ -731,7 +731,7 @@ class SFTPTest (unittest.TestCase):
         Send an empty file and confirm it is sent.
         """
         target = FOLDER + '/empty file.txt'
-        stream = StringIO.StringIO()
+        stream = StringIO()
         try:
             attrs = sftp.putfo(stream, target)
             # the returned attributes should not be null
