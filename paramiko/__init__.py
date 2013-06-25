@@ -86,7 +86,7 @@ from .config import SSHConfig
 from .proxy import ProxyCommand
 
 # fix module names for epydoc
-for c in locals().values():
+for c in dict(locals()).values():
     if issubclass(type(c), type) or type(c).__name__ == 'classobj':
         # classobj for exceptions :/
         c.__module__ = __name__
