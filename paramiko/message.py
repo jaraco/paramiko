@@ -21,6 +21,7 @@ Implementation of an SSH2 "message".
 """
 
 import struct
+from six import integer_types
 from six.moves import StringIO
 
 from paramiko import util
@@ -274,9 +275,7 @@ class Message (object):
     def _add(self, i):
         if type(i) is str:
             return self.add_string(i)
-        elif type(i) is int:
-            return self.add_int(i)
-        elif type(i) is long:
+        elif type(i) in integer_types:
             if i > 0xffffffff:
                 return self.add_mpint(i)
             else:
