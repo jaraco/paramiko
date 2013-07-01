@@ -132,8 +132,8 @@ def main():
     suite.addTest(unittest.makeSuite(SSHClientTest))
     if options.use_sftp:
         suite.addTest(unittest.makeSuite(SFTPTest))
-    if options.use_big_file:
-        suite.addTest(unittest.makeSuite(BigSFTPTest))
+        if options.use_big_file:
+            suite.addTest(unittest.makeSuite(BigSFTPTest))
     verbosity = 1
     if options.verbose:
         verbosity = 2
