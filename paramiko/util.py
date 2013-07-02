@@ -50,7 +50,7 @@ def inflate_long(s, always_positive=False):
     "turns a normalized byte string into a long-int (adapted from Crypto.Util.number)"
     out = 0
     negative = 0
-    if not always_positive and (len(s) > 0) and (bytearray(s)[0] >= 0x80):
+    if not always_positive and (len(s) > 0) and (ord(s[0]) >= 0x80):
         negative = 1
     if len(s) % 4:
         filler = b'\x00'
@@ -85,9 +85,9 @@ def deflate_long(n, add_sign_padding=True):
             s = b'\xff'
     s = s[i[0]:]
     if add_sign_padding:
-        if (n == 0) and (bytearray(s)[0] >= 0x80):
+        if (n == 0) and (ord(s[0]) >= 0x80):
             s = b'\x00' + s
-        if (n == -1) and (bytearray(s)[0] < 0x80):
+        if (n == -1) and (ord(s[0]) < 0x80):
             s = b'\xff' + s
     return s
 
@@ -135,7 +135,7 @@ def safe_string(s):
 
 def bit_length(n):
     norm = deflate_long(n, 0)
-    hbyte = bytearray(norm)[0]
+    hbyte = ord(norm[0])
     if hbyte == 0:
         return 1
     bitlen = len(norm) * 8
