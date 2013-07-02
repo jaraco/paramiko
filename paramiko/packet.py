@@ -27,6 +27,8 @@ import struct
 import threading
 import time
 
+from six import int2byte
+
 from paramiko.common import *
 from paramiko import util
 from paramiko.ssh_exception import SSHException, ProxyCommandFailure
@@ -495,7 +497,7 @@ class Packetizer (object):
         if self.__sdctr_out or self.__block_engine_out is None:
             # cute trick i caught openssh doing: if we're not encrypting or SDCTR mode (RFC4344),
             # don't waste random bytes for the padding
-            packet += (chr(0) * padding)
+            packet += (int2byte(0) * padding)
         else:
             packet += rng.read(padding)
         return packet

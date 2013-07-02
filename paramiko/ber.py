@@ -17,6 +17,8 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
 
 
+from six import int2byte
+
 from . import util
 
 
@@ -99,12 +101,12 @@ class BER(object):
 
     def encode_tlv(self, ident, val):
         # no need to support ident > 31 here
-        self.content += chr(ident)
+        self.content += int2byte(ident)
         if len(val) > 0x7f:
             lenstr = util.deflate_long(len(val))
-            self.content += chr(0x80 + len(lenstr)) + lenstr
+            self.content += int2byte(0x80 + len(lenstr)) + lenstr
         else:
-            self.content += chr(len(val))
+            self.content += int2byte(len(val))
         self.content += val
 
     def encode(self, x):

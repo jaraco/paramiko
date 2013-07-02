@@ -27,6 +27,8 @@ import threading
 import socket
 import os
 
+from six import int2byte
+
 from paramiko.common import *
 from paramiko import util
 from paramiko.message import Message
@@ -148,7 +150,7 @@ class Channel (object):
         if self.closed or self.eof_received or self.eof_sent or not self.active:
             raise SSHException('Channel is not open')
         m = Message()
-        m.add_byte(chr(MSG_CHANNEL_REQUEST))
+        m.add_byte(int2byte(MSG_CHANNEL_REQUEST))
         m.add_int(self.remote_chanid)
         m.add_string(b'pty-req')
         m.add_boolean(True)
@@ -181,7 +183,7 @@ class Channel (object):
         if self.closed or self.eof_received or self.eof_sent or not self.active:
             raise SSHException('Channel is not open')
         m = Message()
-        m.add_byte(chr(MSG_CHANNEL_REQUEST))
+        m.add_byte(int2byte(MSG_CHANNEL_REQUEST))
         m.add_int(self.remote_chanid)
         m.add_string(b'shell')
         m.add_boolean(1)
@@ -208,7 +210,7 @@ class Channel (object):
         if self.closed or self.eof_received or self.eof_sent or not self.active:
             raise SSHException('Channel is not open')
         m = Message()
-        m.add_byte(chr(MSG_CHANNEL_REQUEST))
+        m.add_byte(int2byte(MSG_CHANNEL_REQUEST))
         m.add_int(self.remote_chanid)
         m.add_string(b'exec')
         m.add_boolean(True)
@@ -235,7 +237,7 @@ class Channel (object):
         if self.closed or self.eof_received or self.eof_sent or not self.active:
             raise SSHException('Channel is not open')
         m = Message()
-        m.add_byte(chr(MSG_CHANNEL_REQUEST))
+        m.add_byte(int2byte(MSG_CHANNEL_REQUEST))
         m.add_int(self.remote_chanid)
         m.add_string(b'subsystem')
         m.add_boolean(True)
@@ -264,7 +266,7 @@ class Channel (object):
         if self.closed or self.eof_received or self.eof_sent or not self.active:
             raise SSHException('Channel is not open')
         m = Message()
-        m.add_byte(chr(MSG_CHANNEL_REQUEST))
+        m.add_byte(int2byte(MSG_CHANNEL_REQUEST))
         m.add_int(self.remote_chanid)
         m.add_string(b'window-change')
         m.add_boolean(False)
@@ -319,7 +321,7 @@ class Channel (object):
         # in many cases, the channel will not still be open here.
         # that's fine.
         m = Message()
-        m.add_byte(chr(MSG_CHANNEL_REQUEST))
+        m.add_byte(int2byte(MSG_CHANNEL_REQUEST))
         m.add_int(self.remote_chanid)
         m.add_string(b'exit-status')
         m.add_boolean(False)
@@ -375,7 +377,7 @@ class Channel (object):
             auth_cookie = binascii.hexlify(self.transport.rng.read(16))
 
         m = Message()
-        m.add_byte(chr(MSG_CHANNEL_REQUEST))
+        m.add_byte(int2byte(MSG_CHANNEL_REQUEST))
         m.add_int(self.remote_chanid)
         m.add_string(b'x11-req')
         m.add_boolean(True)
@@ -406,7 +408,7 @@ class Channel (object):
             raise SSHException('Channel is not open')
 
         m = Message()
-        m.add_byte(chr(MSG_CHANNEL_REQUEST))
+        m.add_byte(int2byte(MSG_CHANNEL_REQUEST))
         m.add_int(self.remote_chanid)
         m.add_string(b'auth-agent-req@openssh.com')
         m.add_boolean(False)
@@ -622,7 +624,7 @@ class Channel (object):
         # no need to hold the channel lock when sending this
         if ack > 0:
             m = Message()
-            m.add_byte(chr(MSG_CHANNEL_WINDOW_ADJUST))
+            m.add_byte(int2byte(MSG_CHANNEL_WINDOW_ADJUST))
             m.add_int(self.remote_chanid)
             m.add_int(ack)
             self.transport._send_user_message(m)
@@ -672,7 +674,7 @@ class Channel (object):
         # no need to hold the channel lock when sending this
         if ack > 0:
             m = Message()
-            m.add_byte(chr(MSG_CHANNEL_WINDOW_ADJUST))
+            m.add_byte(int2byte(MSG_CHANNEL_WINDOW_ADJUST))
             m.add_int(self.remote_chanid)
             m.add_int(ack)
             self.transport._send_user_message(m)
@@ -724,7 +726,7 @@ class Channel (object):
                 # eof or similar
                 return 0
             m = Message()
-            m.add_byte(chr(MSG_CHANNEL_DATA))
+            m.add_byte(int2byte(MSG_CHANNEL_DATA))
             m.add_int(self.remote_chanid)
             m.add_string(s[:size])
         finally:
@@ -761,7 +763,7 @@ class Channel (object):
                 # eof or similar
                 return 0
             m = Message()
-            m.add_byte(chr(MSG_CHANNEL_EXTENDED_DATA))
+            m.add_byte(int2byte(MSG_CHANNEL_EXTENDED_DATA))
             m.add_int(self.remote_chanid)
             m.add_int(1)
             m.add_string(s[:size])
@@ -1070,9 +1072,9 @@ class Channel (object):
         if want_reply:
             m = Message()
             if ok:
-                m.add_byte(chr(MSG_CHANNEL_SUCCESS))
+                m.add_byte(int2byte(MSG_CHANNEL_SUCCESS))
             else:
-                m.add_byte(chr(MSG_CHANNEL_FAILURE))
+                m.add_byte(int2byte(MSG_CHANNEL_FAILURE))
             m.add_int(self.remote_chanid)
             self.transport._send_user_message(m)
 
@@ -1138,7 +1140,7 @@ class Channel (object):
         if self.eof_sent:
             return None
         m = Message()
-        m.add_byte(chr(MSG_CHANNEL_EOF))
+        m.add_byte(int2byte(MSG_CHANNEL_EOF))
         m.add_int(self.remote_chanid)
         self.eof_sent = True
         self._log(DEBUG, 'EOF sent (%s)', self._name)
@@ -1150,7 +1152,7 @@ class Channel (object):
             return None, None
         m1 = self._send_eof()
         m2 = Message()
-        m2.add_byte(chr(MSG_CHANNEL_CLOSE))
+        m2.add_byte(int2byte(MSG_CHANNEL_CLOSE))
         m2.add_int(self.remote_chanid)
         self._set_closed()
         # can't unlink from the Transport yet -- the remote side may still

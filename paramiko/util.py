@@ -30,6 +30,8 @@ import struct
 import traceback
 import threading
 
+from six import int2byte
+
 from paramiko.common import *
 from paramiko.config import SSHConfig
 
@@ -296,7 +298,7 @@ class Counter (object):
         """Increament the counter and return the new value"""
         i = self.blocksize - 1
         while i > -1:
-            c = self.value[i] = chr((ord(self.value[i]) + 1) % 256)
+            c = self.value[i] = int2byte((ord(self.value[i]) + 1) % 256)
             if c != '\x00':
                 return self.value.tostring()
             i -= 1

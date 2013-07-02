@@ -22,6 +22,9 @@ Some unit tests for the key exchange protocols.
 
 from binascii import hexlify
 import unittest
+
+from six import int2byte
+
 import paramiko.util
 from paramiko.kex_group1 import KexGroup1
 from paramiko.kex_gex import KexGex
@@ -30,7 +33,7 @@ from paramiko import Message
 
 class FakeRng (object):
     def read(self, n):
-        return chr(0xcc) * n
+        return int2byte(0xcc) * n
 
 
 class FakeKey (object):

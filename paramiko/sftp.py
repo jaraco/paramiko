@@ -20,6 +20,8 @@ import select
 import socket
 import struct
 
+from six import int2byte
+
 from paramiko.common import *
 from paramiko import util
 from paramiko.channel import Channel
@@ -166,7 +168,7 @@ class BaseSFTP (object):
 
     def _send_packet(self, t, packet):
         #self._log(DEBUG2, 'write: %s (len=%d)' % (CMD_NAMES.get(t, '0x%02x' % t), len(packet)))
-        out = struct.pack('>I', len(packet) + 1) + chr(t) + packet
+        out = struct.pack('>I', len(packet) + 1) + int2byte(t) + packet
         if self.ultra_debug:
             self._log(DEBUG, util.format_binary(out, 'OUT: '))
         self._write_all(out)

@@ -21,7 +21,10 @@ Some unit tests for public/private key objects.
 """
 
 from binascii import hexlify, unhexlify
+
+from six import int2byte
 from six.moves import StringIO
+
 import unittest
 from paramiko import RSAKey, DSSKey, Message, util
 from paramiko.common import rng
@@ -156,7 +159,7 @@ class KeyTest (unittest.TestCase):
         self.assert_(type(msg) is Message)
         msg.rewind()
         self.assertEquals('ssh-rsa', msg.get_string())
-        sig = ''.join([chr(int(x, 16)) for x in SIGNED_RSA.split(':')])
+        sig = ''.join([int2byte(int(x, 16)) for x in SIGNED_RSA.split(':')])
         self.assertEquals(sig, msg.get_string())
         msg.rewind()
         pub = RSAKey(data=key.bytes())

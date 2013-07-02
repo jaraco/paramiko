@@ -30,6 +30,8 @@ import tempfile
 import stat
 from select import select
 
+from six import int2byte
+
 from paramiko.ssh_exception import SSHException
 from paramiko.message import Message
 from paramiko.pkey import PKey
@@ -68,7 +70,7 @@ class AgentSSH(object):
 
     def _connect(self, conn):
         self._conn = conn
-        ptype, result = self._send_message(chr(SSH2_AGENTC_REQUEST_IDENTITIES))
+        ptype, result = self._send_message(int2byte(SSH2_AGENTC_REQUEST_IDENTITIES))
         if ptype != SSH2_AGENT_IDENTITIES_ANSWER:
             raise SSHException('could not get keys from ssh-agent')
         keys = []
@@ -370,7 +372,7 @@ class AgentKey(PKey):
 
     def sign_ssh_data(self, rng, data):
         msg = Message()
-        msg.add_byte(chr(SSH2_AGENTC_SIGN_REQUEST))
+        msg.add_byte(int2byte(SSH2_AGENTC_SIGN_REQUEST))
         msg.add_string(self.blob)
         msg.add_string(data)
         msg.add_int(0)

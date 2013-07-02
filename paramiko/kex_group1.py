@@ -23,6 +23,8 @@ Standard SSH key exchange ("kex" if you wanna sound cool).  Diffie-Hellman of
 
 from Crypto.Hash import SHA
 
+from six import int2byte
+
 from paramiko.common import *
 from paramiko import util
 from paramiko.message import Message
@@ -56,7 +58,7 @@ class KexGroup1(object):
         # compute e = g^x mod p (where g=2), and send it
         self.e = pow(G, self.x, P)
         m = Message()
-        m.add_byte(chr(_MSG_KEXDH_INIT))
+        m.add_byte(int2byte(_MSG_KEXDH_INIT))
         m.add_mpint(self.e)
         self.transport._send_message(m)
         self.transport._expect_packet(_MSG_KEXDH_REPLY)
@@ -80,7 +82,7 @@ class KexGroup1(object):
         # larger than q (but this is a tiny tiny subset of potential x).
         while 1:
             x_bytes = self.transport.rng.read(128)
-            x_bytes = chr(ord(x_bytes[0]) & 0x7f) + x_bytes[1:]
+            x_bytes = int2byte(ord(x_bytes[0]) & 0x7f) + x_bytes[1:]
             if (x_bytes[:8] != '\x7F\xFF\xFF\xFF\xFF\xFF\xFF\xFF') and \
                    (x_bytes[:8] != '\x00\x00\x00\x00\x00\x00\x00\x00'):
                 break
@@ -127,7 +129,7 @@ class KexGroup1(object):
         sig = self.transport.get_server_key().sign_ssh_data(self.transport.rng, H)
         # send reply
         m = Message()
-        m.add_byte(chr(_MSG_KEXDH_REPLY))
+        m.add_byte(int2byte(_MSG_KEXDH_REPLY))
         m.add_string(key)
         m.add_mpint(self.f)
         m.add_string(str(sig))

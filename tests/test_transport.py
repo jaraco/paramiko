@@ -29,6 +29,8 @@ import threading
 import unittest
 import random
 
+from six import int2byte
+
 from paramiko import Transport, SecurityOptions, ServerInterface, RSAKey, DSSKey, \
     SSHException, BadAuthenticationType, InteractiveQuery, ChannelException
 from paramiko import AUTH_FAILED, AUTH_PARTIALLY_SUCCESSFUL, AUTH_SUCCESSFUL
@@ -709,7 +711,7 @@ class TransportTest(ParamikoTest):
                 # Simulate in-transit MSG_CHANNEL_WINDOW_ADJUST by sending it
                 # before responding to the incoming MSG_KEXINIT.
                 m2 = Message()
-                m2.add_byte(chr(MSG_CHANNEL_WINDOW_ADJUST))
+                m2.add_byte(int2byte(MSG_CHANNEL_WINDOW_ADJUST))
                 m2.add_int(chan.remote_chanid)
                 m2.add_int(1)    # bytes to add
                 self._send_message(m2)
