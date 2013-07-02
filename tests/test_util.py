@@ -328,3 +328,6 @@ IdentityFile id_dsa22
                 paramiko.util.lookup_ssh_host_config(host, config),
                 values
             )
+
+    def test_deflate(self):
+        self.assertEquals(paramiko.util.deflate_long(17), b'\x11')

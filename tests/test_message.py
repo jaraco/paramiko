@@ -31,6 +31,49 @@ class MessageTest (unittest.TestCase):
     __c = b'\x00\x00\x00\x00\x00\x00\x00\x05\x00\x00\xf5\xe4\xd3\xc2\xb1\x09\x00\x00\x00\x01\x11\x00\x00\x00\x07\x00\xf5\xe4\xd3\xc2\xb1\x09\x00\x00\x00\x06\x9a\x1b\x2c\x3d\x4e\xf7'
     __d = b'\x00\x00\x00\x05\x00\x00\x00\x05\x11\x22\x33\x44\x55\x01\x00\x00\x00\x03cat\x00\x00\x00\x03a,b'
 
+    def test_bytes(self):
+        msg = Message().add_bytes(b'\x00\x3f')
+        msg.rewind()
+        self.assertEquals(msg.get_bytes(2), b'\x00\x3f')
+
+    def test_boolean(self):
+        msg = Message().add_boolean(True)
+        msg.add_boolean(False)
+        msg.rewind()
+        self.assertEquals(msg.get_boolean(), True)
+        self.assertEquals(msg.get_boolean(), False)
+
+    def test_int(self):
+        msg = Message().add_int(1234)
+        msg.rewind()
+        self.assertEquals(msg.get_int(), 1234)
+
+    def test_int64(self):
+        msg = Message().add_int64(0xffffffff12345678)
+        msg.rewind()
+        self.assertEquals(msg.get_int64(), 0xffffffff12345678)
+
+    def test_mpint_short(self):
+        for i in range(1000):
+            msg = Message().add_mpint(i)
+            msg.rewind()
+            self.assertEquals(msg.get_mpint(), i)
+
+    def test_mpint_long(self):
+        msg = Message().add_mpint(0xffffffff0123456789abcdef)
+        msg.rewind()
+        self.assertEquals(msg.get_mpint(), 0xffffffff0123456789abcdef)
+
+    def test_string(self):
+        msg = Message().add_string(b'foobarbaz')
+        msg.rewind()
+        self.assertEquals(msg.get_string(), b'foobarbaz')
+
+    def test_list(self):
+        msg = Message().add_list([b'foo', b'bar', b'baz'])
+        msg.rewind()
+        self.assertEquals(msg.get_list(), [b'foo', b'bar', b'baz'])
+
     def test_1_encode(self):
         msg = Message()
         msg.add_int(23)

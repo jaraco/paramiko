@@ -147,7 +147,7 @@ class Message (object):
         @rtype: bool
         """
         b = self.get_bytes(1)
-        return b != '\x00'
+        return b != b'\x00'
 
     def get_int(self):
         """
@@ -195,7 +195,7 @@ class Message (object):
         @return: a list of strings.
         @rtype: list of strings
         """
-        return self.get_string().split(',')
+        return self.get_string().split(b',')
 
     def add_bytes(self, b):
         """

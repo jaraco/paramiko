@@ -127,3 +127,12 @@ CRITICAL = logging.CRITICAL
 
 # Common IO/select/etc sleep period, in seconds
 io_sleep = 0.01
+
+from six import PY3
+
+_ord = ord
+
+def ord(n):
+    if PY3:
+        return n
+    return _ord(n)
