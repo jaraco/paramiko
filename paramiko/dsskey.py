@@ -20,6 +20,10 @@
 L{DSSKey}
 """
 
+import warnings
+
+from six import PY3
+
 from Crypto.PublicKey import DSA
 from Crypto.Hash import SHA
 
@@ -64,14 +68,25 @@ class DSSKey (PKey):
             self.y = msg.get_mpint()
         self.size = util.bit_length(self.p)
 
-    def __str__(self):
+    def bytes(self):
         m = Message()
-        m.add_string('ssh-dss')
+        m.add_string(b'ssh-dss')
         m.add_mpint(self.p)
         m.add_mpint(self.q)
         m.add_mpint(self.g)
         m.add_mpint(self.y)
-        return str(m)
+        return m.bytes()
+
+    def __bytes__(self):
+        return self.bytes()
+
+    def __str__(self):
+        warning_text = ("__str__() is deprecated due to string type change in Python 3. " +
+                        "Please use bytes() instead.")
+        if PY3:
+            raise DeprecationWarning(warning_text)
+        warnings.warn(warning_text, DeprecationWarning)
+        return self.bytes()
 
     def __hash__(self):
         h = hash(self.get_name())
@@ -102,7 +117,7 @@ class DSSKey (PKey):
                 break
         r, s = dss.sign(util.inflate_long(digest, 1), k)
         m = Message()
-        m.add_string('ssh-dss')
+        m.add_string(b'ssh-dss')
         # apparently, in rare cases, r or s may be shorter than 20 bytes!
         rstr = util.deflate_long(r, 0)
         sstr = util.deflate_long(s, 0)
@@ -114,9 +129,9 @@ class DSSKey (PKey):
         return m
 
     def verify_ssh_sig(self, data, msg):
-        if len(str(msg)) == 40:
+        if len(msg.bytes()) == 40:
             # spies.com bug: signature has no header
-            sig = str(msg)
+            sig = msg.bytes()
         else:
             kind = msg.get_string()
             if kind != 'ssh-dss':

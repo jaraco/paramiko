@@ -63,6 +63,9 @@ class PKey (object):
         """
         pass
 
+    def bytes(self):
+        return b''
+
     def __str__(self):
         """
         Return a string of an SSH L{Message} made up of the public part(s) of
@@ -131,7 +134,7 @@ class PKey (object):
             format.
         @rtype: str
         """
-        return MD5.new(str(self)).digest()
+        return MD5.new(self.bytes()).digest()
 
     def get_base64(self):
         """
@@ -303,7 +306,7 @@ class PKey (object):
             end += 1
         # if we trudged to the end of the file, just try to cope.
         try:
-            data = base64.decodestring(''.join(lines[start:end]))
+            data = base64.standard_b64decode(''.join(lines[start:end]))
         except base64.binascii.Error as e:
             raise SSHException('base64 decoding error: ' + str(e))
         if 'proc-type' not in headers:

@@ -51,12 +51,13 @@ from paramiko.util import retry_on_signal
 from Crypto import Random
 from Crypto.Cipher import Blowfish, AES, DES3, ARC4
 from Crypto.Hash import SHA, MD5
-from six.moves import filter
 try:
     from Crypto.Util import Counter
 except ImportError:
     from paramiko.util import Counter
 
+from six import string_types
+from six.moves import filter
 
 # for thread cleanup
 _active_threads = []
@@ -274,7 +275,7 @@ class Transport (threading.Thread):
         @param sock: a socket or socket-like object to create the session over.
         @type sock: socket
         """
-        if isinstance(sock, (str, unicode)):
+        if isinstance(sock, string_types):
             # convert "host:port" into (host, port)
             hl = sock.split(':', 1)
             if len(hl) == 1:
@@ -1475,13 +1476,13 @@ class Transport (threading.Thread):
         m.add_bytes(self.H)
         m.add_byte(id)
         m.add_bytes(self.session_id)
-        out = sofar = SHA.new(str(m)).digest()
+        out = sofar = SHA.new(m.bytes()).digest()
         while len(out) < nbytes:
             m = Message()
             m.add_mpint(self.K)
             m.add_bytes(self.H)
             m.add_bytes(sofar)
-            digest = SHA.new(str(m)).digest()
+            digest = SHA.new(m.bytes()).digest()
             out += digest
             sofar += digest
         return out[:nbytes]
@@ -1740,12 +1741,12 @@ class Transport (threading.Thread):
         m.add_list(self._preferred_macs)
         m.add_list(self._preferred_compression)
         m.add_list(self._preferred_compression)
-        m.add_string('')
-        m.add_string('')
+        m.add_string(b'')
+        m.add_string(b'')
         m.add_boolean(False)
         m.add_int(0)
         # save a copy for later (needed to compute a hash)
-        self.local_kex_init = str(m)
+        self.local_kex_init = m.bytes()
         self._send_message(m)
 
     def _parse_kex_init(self, m):
@@ -2090,8 +2091,8 @@ class Transport (threading.Thread):
             msg.add_byte(chr(MSG_CHANNEL_OPEN_FAILURE))
             msg.add_int(chanid)
             msg.add_int(reason)
-            msg.add_string('')
-            msg.add_string('en')
+            msg.add_string(b'')
+            msg.add_string(b'en')
             self._send_message(msg)
             return
 

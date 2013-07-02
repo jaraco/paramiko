@@ -120,15 +120,15 @@ class AuthHandler (object):
     def _request_auth(self):
         m = Message()
         m.add_byte(chr(MSG_SERVICE_REQUEST))
-        m.add_string('ssh-userauth')
+        m.add_string(b'ssh-userauth')
         self.transport._send_message(m)
 
     def _disconnect_service_not_available(self):
         m = Message()
         m.add_byte(chr(MSG_DISCONNECT))
         m.add_int(DISCONNECT_SERVICE_NOT_AVAILABLE)
-        m.add_string('Service not available')
-        m.add_string('en')
+        m.add_string(b'Service not available')
+        m.add_string(b'en')
         self.transport._send_message(m)
         self.transport.close()
 
@@ -136,8 +136,8 @@ class AuthHandler (object):
         m = Message()
         m.add_byte(chr(MSG_DISCONNECT))
         m.add_int(DISCONNECT_NO_MORE_AUTH_METHODS_AVAILABLE)
-        m.add_string('No more auth methods available')
-        m.add_string('en')
+        m.add_string(b'No more auth methods available')
+        m.add_string(b'en')
         self.transport._send_message(m)
         self.transport.close()
 
@@ -147,11 +147,11 @@ class AuthHandler (object):
         m.add_byte(chr(MSG_USERAUTH_REQUEST))
         m.add_string(username)
         m.add_string(service)
-        m.add_string('publickey')
+        m.add_string(b'publickey')
         m.add_boolean(1)
         m.add_string(key.get_name())
-        m.add_string(str(key))
-        return str(m)
+        m.add_string(key.bytes())
+        return m.bytes()
 
     def wait_for_response(self, event):
         while True:
@@ -193,7 +193,7 @@ class AuthHandler (object):
             m = Message()
             m.add_byte(chr(MSG_USERAUTH_REQUEST))
             m.add_string(self.username)
-            m.add_string('ssh-connection')
+            m.add_string(b'ssh-connection')
             m.add_string(self.auth_method)
             if self.auth_method == 'password':
                 m.add_boolean(False)
@@ -209,7 +209,7 @@ class AuthHandler (object):
                 sig = self.private_key.sign_ssh_data(self.transport.rng, blob)
                 m.add_string(str(sig))
             elif self.auth_method == 'keyboard-interactive':
-                m.add_string('')
+                m.add_string(b'')
                 m.add_string(self.submethods)
             elif self.auth_method == 'none':
                 pass
@@ -247,7 +247,7 @@ class AuthHandler (object):
         m.add_byte(chr(MSG_USERAUTH_INFO_REQUEST))
         m.add_string(q.name)
         m.add_string(q.instructions)
-        m.add_string('')
+        m.add_string(b'')
         m.add_int(len(q.prompts))
         for p in q.prompts:
             m.add_string(p[0])
@@ -259,7 +259,7 @@ class AuthHandler (object):
             # er, uh... what?
             m = Message()
             m.add_byte(chr(MSG_USERAUTH_FAILURE))
-            m.add_string('none')
+            m.add_string(b'none')
             m.add_boolean(0)
             self.transport._send_message(m)
             return

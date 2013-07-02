@@ -20,9 +20,13 @@
 L{RSAKey}
 """
 
+import warnings
+
 from Crypto.PublicKey import RSA
 from Crypto.Hash import SHA, MD5
 from Crypto.Cipher import DES3
+
+from six import PY3
 
 from paramiko.common import *
 from paramiko import util
@@ -63,12 +67,23 @@ class RSAKey (PKey):
             self.n = msg.get_mpint()
         self.size = util.bit_length(self.n)
 
-    def __str__(self):
+    def bytes(self):
         m = Message()
-        m.add_string('ssh-rsa')
+        m.add_string(b'ssh-rsa')
         m.add_mpint(self.e)
         m.add_mpint(self.n)
-        return str(m)
+        return m.bytes()
+
+    def __bytes__(self):
+        return self.bytes()
+
+    def __str__(self):
+        warning_text = ("__str__() is deprecated due to string type change in Python 3. " +
+                        "Please use bytes() instead.")
+        if PY3:
+            raise DeprecationWarning(warning_text)
+        warnings.warn(warning_text, DeprecationWarning)
+        return self.bytes()
 
     def __hash__(self):
         h = hash(self.get_name())
@@ -90,7 +105,7 @@ class RSAKey (PKey):
         rsa = RSA.construct((long(self.n), long(self.e), long(self.d)))
         sig = util.deflate_long(rsa.sign(self._pkcs1imify(digest), '')[0], 0)
         m = Message()
-        m.add_string('ssh-rsa')
+        m.add_string(b'ssh-rsa')
         m.add_string(sig)
         return m
 

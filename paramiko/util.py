@@ -50,12 +50,12 @@ def inflate_long(s, always_positive=False):
     "turns a normalized byte string into a long-int (adapted from Crypto.Util.number)"
     out = 0
     negative = 0
-    if not always_positive and (len(s) > 0) and (ord(s[0]) >= 0x80):
+    if not always_positive and (len(s) > 0) and (bytearray(s)[0] >= 0x80):
         negative = 1
     if len(s) % 4:
-        filler = '\x00'
+        filler = b'\x00'
         if negative:
-            filler = '\xff'
+            filler = b'\xff'
         s = filler * (4 - len(s) % 4) + s
     for i in range(0, len(s), 4):
         out = (out << 32) + struct.unpack('>I', s[i:i+4])[0]
@@ -64,32 +64,31 @@ def inflate_long(s, always_positive=False):
     return out
 
 def deflate_long(n, add_sign_padding=True):
-    "turns a long-int into a normalized byte string (adapted from Crypto.Util.number)"
+    "turns a int into a normalized byte string (adapted from Crypto.Util.number)"
     # after much testing, this algorithm was deemed to be the fastest
-    s = ''
-    n = long(n)
+    s = b''
     while (n != 0) and (n != -1):
         s = struct.pack('>I', n & 0xffffffff) + s
         n = n >> 32
     # strip off leading zeros, FFs
     for i in enumerate(s):
-        if (n == 0) and (i[1] != '\000'):
+        if (n == 0) and (i[1] != b'\000'):
             break
-        if (n == -1) and (i[1] != '\xff'):
+        if (n == -1) and (i[1] != b'\xff'):
             break
     else:
         # degenerate case, n was either 0 or -1
         i = (0,)
         if n == 0:
-            s = '\000'
+            s = b'\000'
         else:
-            s = '\xff'
+            s = b'\xff'
     s = s[i[0]:]
     if add_sign_padding:
-        if (n == 0) and (ord(s[0]) >= 0x80):
-            s = '\x00' + s
-        if (n == -1) and (ord(s[0]) < 0x80):
-            s = '\xff' + s
+        if (n == 0) and (bytearray(s)[0] >= 0x80):
+            s = b'\x00' + s
+        if (n == -1) and (bytearray(s)[0] < 0x80):
+            s = b'\xff' + s
     return s
 
 def format_binary_weird(data):
@@ -136,7 +135,7 @@ def safe_string(s):
 
 def bit_length(n):
     norm = deflate_long(n, 0)
-    hbyte = ord(norm[0])
+    hbyte = bytearray(norm)[0]
     if hbyte == 0:
         return 1
     bitlen = len(norm) * 8

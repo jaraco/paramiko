@@ -21,8 +21,9 @@ Implementation of an SSH2 "message".
 """
 
 import struct
-from six import integer_types
-from six.moves import StringIO
+import warnings
+
+from six import binary_type, integer_types, BytesIO, PY3
 
 from paramiko import util
 
@@ -47,18 +48,29 @@ class Message (object):
         @type content: string
         """
         if content != None:
-            self.packet = StringIO(content)
+            self.packet = BytesIO(content)
         else:
-            self.packet = StringIO()
+            self.packet = BytesIO()
 
-    def __str__(self):
+    def bytes(self):
         """
-        Return the byte stream content of this Message, as a string.
+        Return the byte stream content of this Message, as a byte string.
 
         @return: the contents of this Message.
         @rtype: string
         """
         return self.packet.getvalue()
+
+    def __bytes__(self):
+        return self.bytes()
+
+    def __str__(self):
+        warning_text = ("__str__() is deprecated due to string type change in Python 3. " +
+                        "Please use bytes() instead.")
+        if PY3:
+            raise DeprecationWarning(warning_text)
+        warnings.warn(warning_text, DeprecationWarning)
+        return self.bytes()
 
     def __repr__(self):
         """
@@ -213,9 +225,9 @@ class Message (object):
         @type b: bool
         """
         if b:
-            self.add_byte('\x01')
+            self.add_byte(b'\x01')
         else:
-            self.add_byte('\x00')
+            self.add_byte(b'\x00')
         return self
             
     def add_int(self, n):
@@ -251,7 +263,7 @@ class Message (object):
 
     def add_string(self, s):
         """
-        Add a string to the stream.
+        Add a byte string to the stream.
         
         @param s: string to add
         @type s: str
@@ -269,11 +281,11 @@ class Message (object):
         @param l: list of strings to add
         @type l: list(str)
         """
-        self.add_string(','.join(l))
+        self.add_string(b','.join(l))
         return self
         
     def _add(self, i):
-        if type(i) is str:
+        if type(i) is binary_type:
             return self.add_string(i)
         elif type(i) in integer_types:
             if i > 0xffffffff:

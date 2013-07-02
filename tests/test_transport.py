@@ -122,7 +122,7 @@ class TransportTest(ParamikoTest):
 
     def setup_test_server(self, client_options=None, server_options=None):
         host_key = RSAKey.from_private_key_file('tests/test_rsa.key')
-        public_host_key = RSAKey(data=str(host_key))
+        public_host_key = RSAKey(data=host_key.bytes())
         self.ts.add_server_key(host_key)
         
         if client_options is not None:
@@ -161,7 +161,7 @@ class TransportTest(ParamikoTest):
         self.tc.K = 123281095979686581523377256114209720774539068973101330872763622971399429481072519713536292772709507296759612401802191955568143056534122385270077606457721553469730659233569339356140085284052436697480759510519672848743794433460113118986816826624865291116513647975790797391795651716378444844877749505443714557929
         self.tc.H = unhexlify('0C8307CDE6856FF30BA93684EB0F04C2520E9ED3')
         self.tc.session_id = self.tc.H
-        key = self.tc._compute_key('C', 32)
+        key = self.tc._compute_key(b'C', 32)
         self.assertEquals('207E66594CA87C44ECCBA3B3CD39FDDB378E6FDB0F97C54B2AA0CFBF900CD995',
                           hexlify(key).upper())
 
@@ -172,7 +172,7 @@ class TransportTest(ParamikoTest):
         later tests. :)
         """
         host_key = RSAKey.from_private_key_file('tests/test_rsa.key')
-        public_host_key = RSAKey(data=str(host_key))
+        public_host_key = RSAKey(data=host_key.bytes())
         self.ts.add_server_key(host_key)
         event = threading.Event()
         server = NullServer()
@@ -197,7 +197,7 @@ class TransportTest(ParamikoTest):
         verify that a long banner doesn't mess up the handshake.
         """
         host_key = RSAKey.from_private_key_file('tests/test_rsa.key')
-        public_host_key = RSAKey(data=str(host_key))
+        public_host_key = RSAKey(data=host_key.bytes())
         self.ts.add_server_key(host_key)
         event = threading.Event()
         server = NullServer()

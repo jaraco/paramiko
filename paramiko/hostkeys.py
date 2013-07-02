@@ -236,9 +236,16 @@ class HostKeys (DictMixin):
                         break
                 else:
                     # add a new one
-                    e = HostKeyEntry([hostname], val)
+                    e = HostKeyEntry([hostname], val) # XXX Should this be self._hostname?
                     self._entries.append(e)
                     self._hostkeys._entries.append(e)
+
+            def __delitem__(self, key):
+                for i in range(len(self._entries)):
+                    if self._entries[i].get_name() == key:
+                        del self._entries[i]
+                        return
+                raise KeyError(key)
 
             def __len__(self):
                 return len(self.keys())

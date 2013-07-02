@@ -135,7 +135,7 @@ class KeyTest (unittest.TestCase):
         # verify that the private & public keys compare equal
         key = RSAKey.from_private_key_file('tests/test_rsa.key')
         self.assertEquals(key, key)
-        pub = RSAKey(data=str(key))
+        pub = RSAKey(data=key.bytes())
         self.assert_(key.can_sign())
         self.assert_(not pub.can_sign())
         self.assertEquals(key, pub)
@@ -144,7 +144,7 @@ class KeyTest (unittest.TestCase):
         # verify that the private & public keys compare equal
         key = DSSKey.from_private_key_file('tests/test_dss.key')
         self.assertEquals(key, key)
-        pub = DSSKey(data=str(key))
+        pub = DSSKey(data=key.bytes())
         self.assert_(key.can_sign())
         self.assert_(not pub.can_sign())
         self.assertEquals(key, pub)
@@ -159,7 +159,7 @@ class KeyTest (unittest.TestCase):
         sig = ''.join([chr(int(x, 16)) for x in SIGNED_RSA.split(':')])
         self.assertEquals(sig, msg.get_string())
         msg.rewind()
-        pub = RSAKey(data=str(key))
+        pub = RSAKey(data=key.bytes())
         self.assert_(pub.verify_ssh_sig('ice weasels', msg))
 
     def test_9_sign_dss(self):
@@ -174,7 +174,7 @@ class KeyTest (unittest.TestCase):
         # anyway so it's ok.
         self.assertEquals(40, len(msg.get_string()))
         msg.rewind()
-        pub = DSSKey(data=str(key))
+        pub = DSSKey(data=key.bytes())
         self.assert_(pub.verify_ssh_sig('ice weasels', msg))
     
     def test_A_generate_rsa(self):
