@@ -157,16 +157,16 @@ def generate_key_bytes(hashclass, salt, key, nbytes):
         hashing function (like C{MD5} or C{SHA}).
     @type hashclass: L{Crypto.Hash}
     @param salt: data to salt the hash with.
-    @type salt: string
+    @type salt: byte string
     @param key: human-entered password or passphrase.
-    @type key: string
+    @type key: byte string
     @param nbytes: number of bytes to generate.
     @type nbytes: int
     @return: key data
     @rtype: string
     """
-    keydata = ''
-    digest = ''
+    keydata = b''
+    digest = b''
     if len(salt) > 8:
         salt = salt[:8]
     while nbytes > 0:
