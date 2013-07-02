@@ -292,8 +292,8 @@ class Packetizer (object):
         Write a block of data using the current cipher, as an SSH block.
         """
         # encrypt this sucka
-        data = str(data)
-        cmd = ord(data[0])
+        data = data.bytes()
+        cmd = bytearray(data)[0]
         if cmd in MSG_NAMES:
             cmd_name = MSG_NAMES[cmd]
         else:
@@ -364,7 +364,7 @@ class Packetizer (object):
             my_mac = compute_hmac(self.__mac_key_in, mac_payload, self.__mac_engine_in)[:self.__mac_size_in]
             if my_mac != mac:
                 raise SSHException('Mismatched MAC')
-        padding = ord(packet[0])
+        padding = bytearray(packet)[0]
         payload = packet[1:packet_size - padding]
         
         if self.__dump_packets:
@@ -398,7 +398,7 @@ class Packetizer (object):
             self.__received_packets_overflow = 0
             self._trigger_rekey()
 
-        cmd = ord(payload[0])
+        cmd = bytearray(payload)[0]
         if cmd in MSG_NAMES:
             cmd_name = MSG_NAMES[cmd]
         else:

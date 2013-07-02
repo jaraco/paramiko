@@ -21,6 +21,9 @@ Some unit tests for the ssh2 protocol in Transport.
 """
 
 import unittest
+
+from six import int2byte
+
 from loop import LoopSocket
 from Crypto.Cipher import AES
 from Crypto.Hash import SHA, HMAC
@@ -41,7 +44,7 @@ class PacketizerTest (unittest.TestCase):
         # message has to be at least 16 bytes long, so we'll have at least one
         # block of data encrypted that contains zero random padding bytes
         m = Message()
-        m.add_byte(chr(100))
+        m.add_byte(int2byte(100))
         m.add_int(100)
         m.add_int(1)
         m.add_int(900)
