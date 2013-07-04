@@ -157,7 +157,7 @@ class SFTPFile (BufferedFile):
             data = self._read_prefetch(size)
             if data is not None:
                 return data
-        t, msg = self.sftp._request(CMD_READ, self.handle, long(self._realpos), int(size))
+        t, msg = self.sftp._request(CMD_READ, self.handle, tolong(self._realpos), int(size))
         if t != CMD_DATA:
             raise SFTPError('Expected data')
         return msg.get_string()
@@ -165,7 +165,7 @@ class SFTPFile (BufferedFile):
     def _write(self, data):
         # may write less than requested if it would exceed max packet size
         chunk = min(len(data), self.MAX_REQUEST_SIZE)
-        self._reqs.append(self.sftp._async_request(type(None), CMD_WRITE, self.handle, long(self._realpos), str(data[:chunk])))
+        self._reqs.append(self.sftp._async_request(type(None), CMD_WRITE, self.handle, tolong(self._realpos), str(data[:chunk])))
         if not self.pipelined or (len(self._reqs) > 100 and self.sftp.sock.recv_ready()):
             while len(self._reqs):
                 req = self._reqs.popleft()
@@ -347,7 +347,7 @@ class SFTPFile (BufferedFile):
         @since: 1.4
         """
         t, msg = self.sftp._request(CMD_EXTENDED, 'check-file', self.handle,
-                                    hash_algorithm, long(offset), long(length), block_size)
+                                    hash_algorithm, tolong(offset), tolong(length), block_size)
         ext = msg.get_string()
         alg = msg.get_string()
         data = msg.get_remainder()
@@ -457,7 +457,7 @@ class SFTPFile (BufferedFile):
         # do these read requests in a temporary thread because there may be
         # a lot of them, so it may block.
         for offset, length in chunks:
-            self.sftp._async_request(self, CMD_READ, self.handle, long(offset), int(length))
+            self.sftp._async_request(self, CMD_READ, self.handle, tolong(offset), int(length))
 
     def _async_response(self, t, msg):
         if t == CMD_STATUS:

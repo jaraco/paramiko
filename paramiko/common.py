@@ -141,6 +141,12 @@ def ord(n):
     return _ord(n)
 
 
+def tolong(n):
+    if PY3:
+        return int(n)
+    return long(n)
+
+
 def force_list_to_bytes(sequence):
     for i in sequence:
         if isinstance(i, text_type):

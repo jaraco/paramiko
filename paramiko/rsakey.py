@@ -62,7 +62,7 @@ class RSAKey (PKey):
             if msg is None:
                 raise SSHException('Key object may not be empty')
             key_type = msg.get_string()
-            if key_type != 'ssh-rsa':
+            if key_type != b'ssh-rsa':
                 raise SSHException('Invalid key. Expected ssh-rsa, got %s' % key_type)
             self.e = msg.get_mpint()
             self.n = msg.get_mpint()
@@ -93,7 +93,7 @@ class RSAKey (PKey):
         return hash(h)
 
     def get_name(self):
-        return 'ssh-rsa'
+        return b'ssh-rsa'
 
     def get_bits(self):
         return self.size
@@ -103,7 +103,7 @@ class RSAKey (PKey):
 
     def sign_ssh_data(self, rpool, data):
         digest = SHA.new(data).digest()
-        rsa = RSA.construct((long(self.n), long(self.e), long(self.d)))
+        rsa = RSA.construct((tolong(self.n), tolong(self.e), tolong(self.d)))
         sig = util.deflate_long(rsa.sign(self._pkcs1imify(digest), '')[0], 0)
         m = Message()
         m.add_string(b'ssh-rsa')
@@ -118,7 +118,7 @@ class RSAKey (PKey):
         # public key.  some wackiness ensues where we "pkcs1imify" the 20-byte
         # hash into a string as long as the RSA key.
         hash_obj = util.inflate_long(self._pkcs1imify(SHA.new(data).digest()), True)
-        rsa = RSA.construct((long(self.n), long(self.e)))
+        rsa = RSA.construct((tolong(self.n), tolong(self.e)))
         return rsa.verify(hash_obj, (sig,))
 
     def _encode_key(self):
