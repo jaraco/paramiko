@@ -100,6 +100,12 @@ class PKey (object):
             return cmp(hs, ho)
         return cmp(self.bytes(), other.bytes())
 
+    def __eq__(self, other):
+        return self.bytes() == other.bytes()
+
+    def __ne__(self, other):
+        return self.bytes() != other.bytes()
+
     def get_name(self):
         """
         Return the name of this private key implementation.
