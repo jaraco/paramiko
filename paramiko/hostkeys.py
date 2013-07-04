@@ -81,9 +81,9 @@ class HostKeyEntry:
         # to hold it accordingly.
         try:
             if keytype == 'ssh-rsa':
-                key = RSAKey(data=base64.decodestring(key))
+                key = RSAKey(data=base64.standard_b64decode(key))
             elif keytype == 'ssh-dss':
-                key = DSSKey(data=base64.decodestring(key))
+                key = DSSKey(data=base64.standard_b64decode(key))
             else:
                 log.info("Unable to handle key of type %s" % (keytype,))
                 return None
@@ -356,10 +356,10 @@ class HostKeys (MutableMapping):
         else:
             if salt.startswith('|1|'):
                 salt = salt.split('|')[2]
-            salt = base64.decodestring(salt)
+            salt = base64.standard_b64decode(salt)
         assert len(salt) == SHA.digest_size
         hmac = HMAC.HMAC(salt, hostname, SHA).digest()
-        hostkey = '|1|%s|%s' % (base64.encodestring(salt), base64.encodestring(hmac))
+        hostkey = '|1|%s|%s' % (base64.standard_b64encode(salt), base64.standard_b64encode(hmac))
         return hostkey.replace('\n', '')
     hash_host = staticmethod(hash_host)
 
