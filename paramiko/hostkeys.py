@@ -24,9 +24,9 @@ import base64
 import binascii
 from Crypto.Hash import SHA, HMAC
 try:
-    from UserDict import DictMixin
+    from collections import MutableMapping
 except ImportError:
-    from collections.abc import MutableMapping as DictMixin
+    from collections.abc import MutableMapping
 
 from paramiko.common import *
 from paramiko.dsskey import DSSKey
@@ -108,7 +108,7 @@ class HostKeyEntry:
         return '<HostKeyEntry %r: %r>' % (self.hostnames, self.key)
 
 
-class HostKeys (DictMixin):
+class HostKeys (MutableMapping):
     """
     Representation of an openssh-style "known hosts" file.  Host keys can be
     read from one or more files, and then individual hosts can be looked up to
@@ -214,7 +214,7 @@ class HostKeys (DictMixin):
         @return: keys associated with this host (or C{None})
         @rtype: dict(str, L{PKey})
         """
-        class SubDict (DictMixin):
+        class SubDict (MutableMapping):
             def __init__(self, hostname, entries, hostkeys):
                 self._hostname = hostname
                 self._entries = entries
@@ -313,6 +313,9 @@ class HostKeys (DictMixin):
                     found = True
             if not found:
                 self._entries.append(HostKeyEntry([hostname], entry[key_type]))
+
+    def __delitem__(self, key):
+        raise NotImplementedError('del is not supported')
 
     def __len__(self):
         return len(self.keys())
