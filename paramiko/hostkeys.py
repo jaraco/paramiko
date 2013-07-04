@@ -285,7 +285,7 @@ class HostKeys (DictMixin):
         host_key = k.get(key.get_name(), None)
         if host_key is None:
             return False
-        return str(host_key) == str(key)
+        return host_key.bytes() == key.bytes()
 
     def clear(self):
         """

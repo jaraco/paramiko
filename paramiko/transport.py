@@ -1016,10 +1016,10 @@ class Transport (threading.Thread):
         # check host key if we were given one
         if (hostkey is not None):
             key = self.get_remote_server_key()
-            if (key.get_name() != hostkey.get_name()) or (str(key) != str(hostkey)):
+            if (key.get_name() != hostkey.get_name()) or (key.bytes() != hostkey.bytes()):
                 self._log(DEBUG, 'Bad host key from server')
-                self._log(DEBUG, 'Expected: %s: %s' % (hostkey.get_name(), repr(str(hostkey))))
-                self._log(DEBUG, 'Got     : %s: %s' % (key.get_name(), repr(str(key))))
+                self._log(DEBUG, 'Expected: %s: %s' % (hostkey.get_name(), repr(hostkey.bytes())))
+                self._log(DEBUG, 'Got     : %s: %s' % (key.get_name(), repr(key.bytes())))
                 raise SSHException('Bad host key from server')
             self._log(DEBUG, 'Host key verified (%s)' % hostkey.get_name())
 

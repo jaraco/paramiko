@@ -30,7 +30,7 @@ import tempfile
 import stat
 from select import select
 
-from six import int2byte
+from six import int2byte, binary_type
 
 from paramiko.ssh_exception import SSHException
 from paramiko.message import Message
@@ -85,7 +85,8 @@ class AgentSSH(object):
         self._keys = ()
 
     def _send_message(self, msg):
-        msg = str(msg)
+        if not isinstance(msg, binary_type):
+            msg = msg.bytes()
         self._conn.send(struct.pack('>I', len(msg)) + msg)
         l = self._read_all(4)
         msg = Message(self._read_all(struct.unpack('>I', l)[0]))
@@ -364,7 +365,7 @@ class AgentKey(PKey):
         self.blob = blob
         self.name = Message(blob).get_string()
 
-    def __str__(self):
+    def bytes(self):
         return self.blob
 
     def get_name(self):
@@ -379,4 +380,6 @@ class AgentKey(PKey):
         ptype, result = self.agent._send_message(msg)
         if ptype != SSH2_AGENT_SIGN_RESPONSE:
             raise SSHException('key cannot be used for signing')
-        return result.get_string()
+        # XXX Other sign_ssh_datas return messages, this one just returns one
+        # string of the message. Is it a bug?
+        return Message(result.get_string())

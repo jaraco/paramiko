@@ -35,8 +35,16 @@ class BER(object):
         self.content = content
         self.idx = 0
 
-    def __str__(self):
+    def bytes(self):
         return self.content
+
+    def __str__(self):
+        warning_text = ("__str__() is deprecated due to string type change in Python 3. " +
+                        "Please use bytes() instead.")
+        if PY3:
+            raise DeprecationWarning(warning_text)
+        warnings.warn(warning_text, DeprecationWarning)
+        return self.bytes()
 
     def __repr__(self):
         return 'BER(\'' + repr(self.content) + '\')'
@@ -128,5 +136,5 @@ class BER(object):
         b = BER()
         for item in data:
             b.encode(item)
-        return str(b)
+        return b.bytes()
     encode_sequence = staticmethod(encode_sequence)

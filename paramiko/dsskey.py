@@ -155,7 +155,7 @@ class DSSKey (PKey):
             b.encode(keylist)
         except BERException:
             raise SSHException('Unable to create ber encoding of key')
-        return str(b)
+        return b.bytes()
 
     def write_private_key_file(self, filename, password=None):
         self._write_private_key_file('DSA', filename, self._encode_key(), password)

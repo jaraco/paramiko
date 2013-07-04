@@ -75,7 +75,12 @@ class PKey (object):
         @return: string representation of an SSH key message.
         @rtype: str
         """
-        return ''
+        warning_text = ("__str__() is deprecated due to string type change in Python 3. " +
+                        "Please use bytes() instead.")
+        if PY3:
+            raise DeprecationWarning(warning_text)
+        warnings.warn(warning_text, DeprecationWarning)
+        return self.bytes()
 
     def __cmp__(self, other):
         """
@@ -93,7 +98,7 @@ class PKey (object):
         ho = hash(other)
         if hs != ho:
             return cmp(hs, ho)
-        return cmp(str(self), str(other))
+        return cmp(self.bytes(), other.bytes())
 
     def get_name(self):
         """
@@ -145,7 +150,7 @@ class PKey (object):
         @return: a base64 string containing the public part of the key.
         @rtype: str
         """
-        return base64.encodestring(str(self)).replace('\n', '')
+        return base64.encodestring(self.bytes()).replace('\n', '')
 
     def sign_ssh_data(self, rng, data):
         """
@@ -159,7 +164,7 @@ class PKey (object):
         @return: an SSH signature message.
         @rtype: L{Message}
         """
-        return ''
+        return Message()
 
     def verify_ssh_sig(self, data, msg):
         """

@@ -206,10 +206,10 @@ class AuthHandler (object):
             elif self.auth_method == 'publickey':
                 m.add_boolean(True)
                 m.add_string(self.private_key.get_name())
-                m.add_string(str(self.private_key))
+                m.add_string(self.private_key.bytes())
                 blob = self._get_session_blob(self.private_key, 'ssh-connection', self.username)
                 sig = self.private_key.sign_ssh_data(self.transport.rng, blob)
-                m.add_string(str(sig))
+                m.add_string(sig.bytes())
             elif self.auth_method == 'keyboard-interactive':
                 m.add_string(b'')
                 m.add_string(self.submethods)
@@ -312,6 +312,7 @@ class AuthHandler (object):
                 key = self.transport._key_info[keytype](Message(keyblob))
             except SSHException as e:
                 self.transport._log(INFO, 'Auth rejected: public key: %s' % str(e))
+                self.transport._log(INFO, 'keytype: %s, keyblob: %s' % (keytype, keyblob))
                 key = None
             except:
                 self.transport._log(INFO, 'Auth rejected: unsupported or mangled public key')

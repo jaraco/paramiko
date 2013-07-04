@@ -61,8 +61,9 @@ class RSAKey (PKey):
         else:
             if msg is None:
                 raise SSHException('Key object may not be empty')
-            if msg.get_string() != 'ssh-rsa':
-                raise SSHException('Invalid key')
+            key_type = msg.get_string()
+            if key_type != 'ssh-rsa':
+                raise SSHException('Invalid key. Expected ssh-rsa, got %s' % key_type)
             self.e = msg.get_mpint()
             self.n = msg.get_mpint()
         self.size = util.bit_length(self.n)
@@ -131,7 +132,7 @@ class RSAKey (PKey):
             b.encode(keylist)
         except BERException:
             raise SSHException('Unable to create ber encoding of key')
-        return str(b)
+        return b.bytes()
 
     def write_private_key_file(self, filename, password=None):
         self._write_private_key_file('RSA', filename, self._encode_key(), password)
