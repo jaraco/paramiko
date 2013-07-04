@@ -128,11 +128,24 @@ CRITICAL = logging.CRITICAL
 # Common IO/select/etc sleep period, in seconds
 io_sleep = 0.01
 
-from six import PY3
+import warnings
+
+from six import PY3, text_type
 
 _ord = ord
+
 
 def ord(n):
     if PY3:
         return n
     return _ord(n)
+
+
+def force_list_to_bytes(sequence):
+    for i in sequence:
+        if isinstance(i, text_type):
+            warnings.warn("Forcing str to bytes with ascii encoding. " +
+                          "Please add only byte strings.", DeprecationWarning)
+            yield i.encode('ascii')
+        else:
+            yield i

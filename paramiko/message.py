@@ -23,9 +23,10 @@ Implementation of an SSH2 "message".
 import struct
 import warnings
 
-from six import binary_type, integer_types, BytesIO, PY3
+from six import binary_type, text_type, integer_types, BytesIO, PY3
 
 from paramiko import util
+from paramiko.common import force_list_to_bytes
 
 
 class Message (object):
@@ -281,12 +282,16 @@ class Message (object):
         @param l: list of strings to add
         @type l: list(str)
         """
-        self.add_string(b','.join(l))
+        self.add_string(b','.join(force_list_to_bytes(l)))
         return self
         
     def _add(self, i):
-        if type(i) is binary_type:
+        if isinstance(i, binary_type):
             return self.add_string(i)
+        elif isinstance(i, text_type):
+            warnings.warn("Forcing str to bytes with ascii encoding. " +
+                          "Please add only byte strings.", DeprecationWarning)
+            return self.add_string(i.encode('ascii'))
         elif type(i) in integer_types:
             if i > 0xffffffff:
                 return self.add_mpint(i)
