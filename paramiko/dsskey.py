@@ -108,7 +108,7 @@ class DSSKey (PKey):
 
     def sign_ssh_data(self, rng, data):
         digest = SHA.new(data).digest()
-        dss = DSA.construct((long(self.y), long(self.g), long(self.p), long(self.q), long(self.x)))
+        dss = DSA.construct((tolong(self.y), tolong(self.g), tolong(self.p), tolong(self.q), tolong(self.x)))
         # generate a suitable k
         qsize = len(util.deflate_long(self.q, 0))
         while True:
@@ -143,7 +143,7 @@ class DSSKey (PKey):
         sigS = util.inflate_long(sig[20:], 1)
         sigM = util.inflate_long(SHA.new(data).digest(), 1)
 
-        dss = DSA.construct((long(self.y), long(self.g), long(self.p), long(self.q)))
+        dss = DSA.construct((tolong(self.y), tolong(self.g), tolong(self.p), tolong(self.q)))
         return dss.verify(sigM, (sigR, sigS))
 
     def _encode_key(self):
