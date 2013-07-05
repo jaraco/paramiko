@@ -1390,9 +1390,9 @@ class Transport (threading.Thread):
         @return: the address if the remote host, if known
         @rtype: tuple(str, int)
         """
-        gp = getattr(self.sock, 'getpeername', None)
+        gp = getattr(self.sock, b'getpeername', None)
         if gp is None:
-            return ('unknown', 0)
+            return (b'unknown', 0)
         return gp()
 
     def stop_thread(self):
