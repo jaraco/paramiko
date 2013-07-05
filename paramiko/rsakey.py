@@ -111,7 +111,7 @@ class RSAKey (PKey):
         return m
 
     def verify_ssh_sig(self, data, msg):
-        if msg.get_string() != 'ssh-rsa':
+        if msg.get_string() != b'ssh-rsa':
             return False
         sig = util.inflate_long(msg.get_string(), True)
         # verify the signature by SHA'ing the data and encrypting it using the
@@ -135,10 +135,10 @@ class RSAKey (PKey):
         return b.bytes()
 
     def write_private_key_file(self, filename, password=None):
-        self._write_private_key_file('RSA', filename, self._encode_key(), password)
+        self._write_private_key_file(b'RSA', filename, self._encode_key(), password)
         
     def write_private_key(self, file_obj, password=None):
-        self._write_private_key('RSA', file_obj, self._encode_key(), password)
+        self._write_private_key(b'RSA', file_obj, self._encode_key(), password)
 
     def generate(bits, progress_func=None):
         """
@@ -170,17 +170,17 @@ class RSAKey (PKey):
         turn a 20-byte SHA1 hash into a blob of data as large as the key's N,
         using PKCS1's \"emsa-pkcs1-v1_5\" encoding.  totally bizarre.
         """
-        SHA1_DIGESTINFO = '\x30\x21\x30\x09\x06\x05\x2b\x0e\x03\x02\x1a\x05\x00\x04\x14'
+        SHA1_DIGESTINFO = b'\x30\x21\x30\x09\x06\x05\x2b\x0e\x03\x02\x1a\x05\x00\x04\x14'
         size = len(util.deflate_long(self.n, 0))
-        filler = '\xff' * (size - len(SHA1_DIGESTINFO) - len(data) - 3)
-        return '\x00\x01' + filler + '\x00' + SHA1_DIGESTINFO + data
+        filler = b'\xff' * (size - len(SHA1_DIGESTINFO) - len(data) - 3)
+        return b'\x00\x01' + filler + b'\x00' + SHA1_DIGESTINFO + data
 
     def _from_private_key_file(self, filename, password):
-        data = self._read_private_key_file('RSA', filename, password)
+        data = self._read_private_key_file(b'RSA', filename, password)
         self._decode_key(data)
     
     def _from_private_key(self, file_obj, password):
-        data = self._read_private_key('RSA', file_obj, password)
+        data = self._read_private_key(b'RSA', file_obj, password)
         self._decode_key(data)
     
     def _decode_key(self, data):

@@ -22,6 +22,9 @@ L{HostKeys}
 
 import base64
 import binascii
+import warnings
+
+from six import text_type
 from Crypto.Hash import SHA, HMAC
 try:
     from collections import MutableMapping
@@ -66,7 +69,7 @@ class HostKeyEntry:
         @type line: str
         """
         log = get_logger('paramiko.hostkeys')
-        fields = line.split(' ')
+        fields = line.split(b' ')
         if len(fields) < 3:
             # Bad number of fields
             log.info("Not enough fields found in known_hosts in line %s (%r)" %
@@ -75,14 +78,14 @@ class HostKeyEntry:
         fields = fields[:3]
 
         names, keytype, key = fields
-        names = names.split(',')
+        names = names.split(b',')
 
         # Decide what kind of key we're looking at and create an object
         # to hold it accordingly.
         try:
-            if keytype == 'ssh-rsa':
+            if keytype == b'ssh-rsa':
                 key = RSAKey(data=base64.standard_b64decode(key))
-            elif keytype == 'ssh-dss':
+            elif keytype == b'ssh-dss':
                 key = DSSKey(data=base64.standard_b64decode(key))
             else:
                 log.info("Unable to handle key of type %s" % (keytype,))
@@ -167,10 +170,10 @@ class HostKeys (MutableMapping):
 
         @raise IOError: if there was an error reading the file
         """
-        f = open(filename, 'r')
+        f = open(filename, 'rb')
         for lineno, line in enumerate(f):
             line = line.strip()
-            if (len(line) == 0) or (line[0] == '#'):
+            if (len(line) == 0) or (line[0] == b'#'):
                 continue
             e = HostKeyEntry.from_line(line, lineno)
             if e is not None:
@@ -260,7 +263,7 @@ class HostKeys (MutableMapping):
         entries = []
         for e in self._entries:
             for h in e.hostnames:
-                if (h.startswith('|1|') and (self.hash_host(hostname, h) == h)) or (h == hostname):
+                if (h.startswith(b'|1|') and (self.hash_host(hostname, h) == h)) or (h == hostname):
                     entries.append(e)
         if len(entries) == 0:
             return None
@@ -294,6 +297,9 @@ class HostKeys (MutableMapping):
         self._entries = []
 
     def __getitem__(self, key):
+        if isinstance(key, text_type):
+            warnings.warn("Automatically converting to bytestring with ascii encoding")
+            key = key.encode('ascii')
         ret = self.lookup(key)
         if ret is None:
             raise KeyError(key)
@@ -354,12 +360,13 @@ class HostKeys (MutableMapping):
         if salt is None:
             salt = rng.read(SHA.digest_size)
         else:
-            if salt.startswith('|1|'):
-                salt = salt.split('|')[2]
+            if salt.startswith(b'|1|'):
+                salt = salt.split(b'|')[2]
             salt = base64.standard_b64decode(salt)
         assert len(salt) == SHA.digest_size
         hmac = HMAC.HMAC(salt, hostname, SHA).digest()
-        hostkey = '|1|%s|%s' % (base64.standard_b64encode(salt), base64.standard_b64encode(hmac))
-        return hostkey.replace('\n', '')
+        hostkey = (b'|1|' + base64.standard_b64encode(salt) + b'|' +
+                   base64.standard_b64encode(hmac))
+        return hostkey.replace(b'\n', b'')
     hash_host = staticmethod(hash_host)
 

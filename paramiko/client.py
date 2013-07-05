@@ -450,7 +450,7 @@ class SSHClient (object):
             try:
                 self._log(DEBUG, 'Trying SSH key %s' % hexlify(pkey.get_fingerprint()))
                 allowed_types = self._transport.auth_publickey(username, pkey)
-                two_factor = (allowed_types == ['password'])
+                two_factor = (allowed_types == [b'password'])
                 if not two_factor:
                     return
             except SSHException as e:
@@ -463,7 +463,7 @@ class SSHClient (object):
                         key = pkey_class.from_private_key_file(key_filename, password)
                         self._log(DEBUG, 'Trying key %s from %s' % (hexlify(key.get_fingerprint()), key_filename))
                         self._transport.auth_publickey(username, key)
-                        two_factor = (allowed_types == ['password'])
+                        two_factor = (allowed_types == [b'password'])
                         if not two_factor:
                             return
                         break
@@ -479,7 +479,7 @@ class SSHClient (object):
                     self._log(DEBUG, 'Trying SSH agent key %s' % hexlify(key.get_fingerprint()))
                     # for 2-factor auth a successfully auth'd key will result in ['password']
                     allowed_types = self._transport.auth_publickey(username, key)
-                    two_factor = (allowed_types == ['password'])
+                    two_factor = (allowed_types == [b'password'])
                     if not two_factor:
                         return
                     break

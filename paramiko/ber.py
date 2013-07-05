@@ -16,8 +16,9 @@
 # along with Paramiko; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
 
+import warnings
 
-from six import int2byte
+from six import int2byte, integer_types, PY3
 
 from . import util
 
@@ -31,7 +32,7 @@ class BER(object):
     Robey's tiny little attempt at a BER decoder.
     """
 
-    def __init__(self, content=''):
+    def __init__(self, content=b''):
         self.content = content
         self.idx = 0
 
@@ -51,7 +52,7 @@ class BER(object):
 
     def decode(self):
         return self.decode_next()
-    
+
     def decode_next(self):
         if self.idx >= len(self.content):
             return None
@@ -78,12 +79,12 @@ class BER(object):
             t = size & 0x7f
             if self.idx + t > len(self.content):
                 return None
-            size = util.inflate_long(self.content[self.idx : self.idx + t], True)
+            size = util.inflate_long(self.content[self.idx: self.idx + t], True)
             self.idx += t
         if self.idx + size > len(self.content):
             # can't fit
             return None
-        data = self.content[self.idx : self.idx + size]
+        data = self.content[self.idx: self.idx + size]
         self.idx += size
         # now switch on id
         if ident == 0x30:
@@ -120,10 +121,10 @@ class BER(object):
     def encode(self, x):
         if type(x) is bool:
             if x:
-                self.encode_tlv(1, '\xff')
+                self.encode_tlv(1, b'\xff')
             else:
-                self.encode_tlv(1, '\x00')
-        elif (type(x) is int) or (type(x) is long):
+                self.encode_tlv(1, b'\x00')
+        elif isinstance(x, integer_types):
             self.encode_tlv(2, util.deflate_long(x))
         elif type(x) is str:
             self.encode_tlv(4, x)

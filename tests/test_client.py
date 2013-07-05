@@ -33,17 +33,17 @@ import paramiko
 class NullServer (paramiko.ServerInterface):
 
     def get_allowed_auths(self, username):
-        if username == 'slowdive':
-            return 'publickey,password'
-        return 'publickey'
+        if username == b'slowdive':
+            return b'publickey,password'
+        return b'publickey'
 
     def check_auth_password(self, username, password):
-        if (username == 'slowdive') and (password == 'pygmalion'):
+        if (username == b'slowdive') and (password == b'pygmalion'):
             return paramiko.AUTH_SUCCESSFUL
         return paramiko.AUTH_FAILED
 
     def check_auth_publickey(self, username, key):
-        if (key.get_name() == 'ssh-dss') and (hexlify(key.get_fingerprint()) == '4478f0b9a23cc5182009ff755bc1d26c'):
+        if (key.get_name() == b'ssh-dss') and (hexlify(key.get_fingerprint()) == b'4478f0b9a23cc5182009ff755bc1d26c'):
             return paramiko.AUTH_SUCCESSFUL
         return paramiko.AUTH_FAILED
 
@@ -51,7 +51,7 @@ class NullServer (paramiko.ServerInterface):
         return paramiko.OPEN_SUCCEEDED
 
     def check_channel_exec_request(self, channel, command):
-        if command != 'yes':
+        if command != b'yes':
             return False
         return True
 
@@ -75,7 +75,7 @@ class SSHClientTest (unittest.TestCase):
     def _run(self):
         self.socks, addr = self.sockl.accept()
         self.ts = paramiko.Transport(self.socks)
-        host_key = paramiko.RSAKey.from_private_key_file('tests/test_rsa.key')
+        host_key = paramiko.RSAKey.from_private_key_file(b'tests/test_rsa.key')
         self.ts.add_server_key(host_key)
         server = NullServer()
         self.ts.start_server(self.event, server)
@@ -85,12 +85,12 @@ class SSHClientTest (unittest.TestCase):
         """
         verify that the SSHClient stuff works too.
         """
-        host_key = paramiko.RSAKey.from_private_key_file('tests/test_rsa.key')
+        host_key = paramiko.RSAKey.from_private_key_file(b'tests/test_rsa.key')
         public_host_key = paramiko.RSAKey(data=host_key.bytes())
 
         self.tc = paramiko.SSHClient()
-        self.tc.get_host_keys().add('[%s]:%d' % (self.addr, self.port), 'ssh-rsa', public_host_key)
-        self.tc.connect(self.addr, self.port, username='slowdive', password='pygmalion')
+        self.tc.get_host_keys().add(('[%s]:%d' % (self.addr, self.port)).encode('ascii'), b'ssh-rsa', public_host_key)
+        self.tc.connect(self.addr, self.port, username=b'slowdive', password=b'pygmalion')
 
         self.event.wait(1.0)
         self.assert_(self.event.isSet())

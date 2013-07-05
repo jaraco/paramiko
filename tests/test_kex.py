@@ -49,7 +49,7 @@ class FakeKey (object):
         return self.bytes()
 
     def sign_ssh_data(self, rng, H):
-        return Message('fake-sig')
+        return Message(b'fake-sig')
 
 
 class FakeModulusPack (object):

@@ -35,7 +35,7 @@ from loop import LoopSocket
 class NullServer (ServerInterface):
     paranoid_did_password = False
     paranoid_did_public_key = False
-    paranoid_key = DSSKey.from_private_key_file('tests/test_dss.key')
+    paranoid_key = DSSKey.from_private_key_file(b'tests/test_dss.key')
     
     def get_allowed_auths(self, username):
         if username == 'slowdive':
@@ -133,10 +133,8 @@ class AuthTest (unittest.TestCase):
             self.tc.connect(hostkey=self.public_host_key,
                             username='unknown', password='error')
             self.assert_(False)
-        except:
-            etype, evalue, etb = sys.exc_info()
-            self.assertEquals(BadAuthenticationType, etype)
-            self.assertEquals(['publickey'], evalue.allowed_types)
+        except BadAuthenticationType as e:
+            self.assertEquals(['publickey'], e.allowed_types)
 
     def test_2_bad_password(self):
         """

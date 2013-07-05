@@ -46,7 +46,7 @@ class AuthHandler (object):
         self.username = None
         self.authenticated = False
         self.auth_event = None
-        self.auth_method = ''
+        self.auth_method = b''
         self.password = None
         self.private_key = None
         self.interactive_handler = None
@@ -68,7 +68,7 @@ class AuthHandler (object):
         self.transport.lock.acquire()
         try:
             self.auth_event = event
-            self.auth_method = 'none'
+            self.auth_method = b'none'
             self.username = username
             self._request_auth()
         finally:
@@ -78,7 +78,7 @@ class AuthHandler (object):
         self.transport.lock.acquire()
         try:
             self.auth_event = event
-            self.auth_method = 'publickey'
+            self.auth_method = b'publickey'
             self.username = username
             self.private_key = key
             self._request_auth()
@@ -89,21 +89,21 @@ class AuthHandler (object):
         self.transport.lock.acquire()
         try:
             self.auth_event = event
-            self.auth_method = 'password'
+            self.auth_method = b'password'
             self.username = username
             self.password = password
             self._request_auth()
         finally:
             self.transport.lock.release()
     
-    def auth_interactive(self, username, handler, event, submethods=''):
+    def auth_interactive(self, username, handler, event, submethods=b''):
         """
         response_list = handler(title, instructions, prompt_list)
         """
         self.transport.lock.acquire()
         try:
             self.auth_event = event
-            self.auth_method = 'keyboard-interactive'
+            self.auth_method = b'keyboard-interactive'
             self.username = username
             self.interactive_handler = handler
             self.submethods = submethods
@@ -178,7 +178,7 @@ class AuthHandler (object):
 
     def _parse_service_request(self, m):
         service = m.get_string()
-        if self.transport.server_mode and (service == 'ssh-userauth'):
+        if self.transport.server_mode and (service == b'ssh-userauth'):
             # accepted
             m = Message()
             m.add_byte(int2byte(MSG_SERVICE_ACCEPT))
@@ -190,30 +190,30 @@ class AuthHandler (object):
 
     def _parse_service_accept(self, m):
         service = m.get_string()
-        if service == 'ssh-userauth':
+        if service == b'ssh-userauth':
             self.transport._log(DEBUG, 'userauth is OK')
             m = Message()
             m.add_byte(int2byte(MSG_USERAUTH_REQUEST))
             m.add_string(self.username)
             m.add_string(b'ssh-connection')
             m.add_string(self.auth_method)
-            if self.auth_method == 'password':
+            if self.auth_method == b'password':
                 m.add_boolean(False)
                 password = self.password
                 if isinstance(password, unicode):
                     password = password.encode('UTF-8')
                 m.add_string(password)
-            elif self.auth_method == 'publickey':
+            elif self.auth_method == b'publickey':
                 m.add_boolean(True)
                 m.add_string(self.private_key.get_name())
                 m.add_string(self.private_key.bytes())
-                blob = self._get_session_blob(self.private_key, 'ssh-connection', self.username)
+                blob = self._get_session_blob(self.private_key, b'ssh-connection', self.username)
                 sig = self.private_key.sign_ssh_data(self.transport.rng, blob)
                 m.add_string(sig.bytes())
-            elif self.auth_method == 'keyboard-interactive':
+            elif self.auth_method == b'keyboard-interactive':
                 m.add_string(b'')
                 m.add_string(self.submethods)
-            elif self.auth_method == 'none':
+            elif self.auth_method == b'none':
                 pass
             else:
                 raise SSHException('Unknown auth method "%s"' % self.auth_method)
@@ -272,7 +272,7 @@ class AuthHandler (object):
         service = m.get_string()
         method = m.get_string()
         self.transport._log(DEBUG, 'Auth request (type=%s) service=%s, username=%s' % (method, service, username))
-        if service != 'ssh-connection':
+        if service != b'ssh-connection':
             self._disconnect_service_not_available()
             return
         if (self.auth_username is not None) and (self.auth_username != username):
@@ -281,9 +281,9 @@ class AuthHandler (object):
             return
         self.auth_username = username
 
-        if method == 'none':
+        if method == b'none':
             result = self.transport.server_object.check_auth_none(username)
-        elif method == 'password':
+        elif method == b'password':
             changereq = m.get_boolean()
             password = m.get_string()
             try:
@@ -304,7 +304,7 @@ class AuthHandler (object):
                 result = AUTH_FAILED
             else:
                 result = self.transport.server_object.check_auth_password(username, password)
-        elif method == 'publickey':
+        elif method == b'publickey':
             sig_attached = m.get_boolean()
             keytype = m.get_string()
             keyblob = m.get_string()
@@ -338,7 +338,7 @@ class AuthHandler (object):
                 if not key.verify_ssh_sig(blob, sig):
                     self.transport._log(INFO, 'Auth rejected: invalid signature')
                     result = AUTH_FAILED
-        elif method == 'keyboard-interactive':
+        elif method == b'keyboard-interactive':
             lang = m.get_string()
             submethods = m.get_string()
             result = self.transport.server_object.check_auth_interactive(username, submethods)
@@ -383,7 +383,7 @@ class AuthHandler (object):
         # who cares.
     
     def _parse_userauth_info_request(self, m):
-        if self.auth_method != 'keyboard-interactive':
+        if self.auth_method != b'keyboard-interactive':
             raise SSHException('Illegal info request from server')
         title = m.get_string()
         instructions = m.get_string()
@@ -413,7 +413,7 @@ class AuthHandler (object):
             # make interactive query instead of response
             self._interactive_query(result)
             return
-        self._send_auth_result(self.auth_username, 'keyboard-interactive', result)
+        self._send_auth_result(self.auth_username, b'keyboard-interactive', result)
         
 
     _handler_table = {

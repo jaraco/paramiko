@@ -54,8 +54,8 @@ if sys.version_info < (2, 5):
     raise RuntimeError('You need python 2.5+ for this module.')
 
 
-__author__ = "Jeff Forcier <jeff@bitprophet.org>"
-__version__ = "1.10.1"
+__author__ = b"Jeff Forcier <jeff@bitprophet.org>"
+__version__ = b"1.10.1"
 __license__ = "GNU Lesser General Public License (LGPL)"
 
 

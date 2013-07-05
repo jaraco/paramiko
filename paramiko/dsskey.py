@@ -60,7 +60,7 @@ class DSSKey (PKey):
         else:
             if msg is None:
                 raise SSHException('Key object may not be empty')
-            if msg.get_string() != 'ssh-dss':
+            if msg.get_string() != b'ssh-dss':
                 raise SSHException('Invalid key')
             self.p = msg.get_mpint()
             self.q = msg.get_mpint()
@@ -98,7 +98,7 @@ class DSSKey (PKey):
         return hash(h)
 
     def get_name(self):
-        return 'ssh-dss'
+        return b'ssh-dss'
 
     def get_bits(self):
         return self.size
@@ -122,9 +122,9 @@ class DSSKey (PKey):
         rstr = util.deflate_long(r, 0)
         sstr = util.deflate_long(s, 0)
         if len(rstr) < 20:
-            rstr = '\x00' * (20 - len(rstr)) + rstr
+            rstr = b'\x00' * (20 - len(rstr)) + rstr
         if len(sstr) < 20:
-            sstr = '\x00' * (20 - len(sstr)) + sstr
+            sstr = b'\x00' * (20 - len(sstr)) + sstr
         m.add_string(rstr + sstr)
         return m
 
@@ -134,7 +134,7 @@ class DSSKey (PKey):
             sig = msg.bytes()
         else:
             kind = msg.get_string()
-            if kind != 'ssh-dss':
+            if kind != b'ssh-dss':
                 return 0
             sig = msg.get_string()
 
@@ -158,10 +158,10 @@ class DSSKey (PKey):
         return b.bytes()
 
     def write_private_key_file(self, filename, password=None):
-        self._write_private_key_file('DSA', filename, self._encode_key(), password)
+        self._write_private_key_file(b'DSA', filename, self._encode_key(), password)
 
     def write_private_key(self, file_obj, password=None):
-        self._write_private_key('DSA', file_obj, self._encode_key(), password)
+        self._write_private_key(b'DSA', file_obj, self._encode_key(), password)
 
     def generate(bits=1024, progress_func=None):
         """
@@ -187,11 +187,11 @@ class DSSKey (PKey):
 
 
     def _from_private_key_file(self, filename, password):
-        data = self._read_private_key_file('DSA', filename, password)
+        data = self._read_private_key_file(b'DSA', filename, password)
         self._decode_key(data)
     
     def _from_private_key(self, file_obj, password):
-        data = self._read_private_key('DSA', file_obj, password)
+        data = self._read_private_key(b'DSA', file_obj, password)
         self._decode_key(data)
     
     def _decode_key(self, data):

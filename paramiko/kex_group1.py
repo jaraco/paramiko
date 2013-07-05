@@ -40,7 +40,7 @@ G = 2
 
 class KexGroup1(object):
 
-    name = 'diffie-hellman-group1-sha1'
+    name = b'diffie-hellman-group1-sha1'
 
     def __init__(self, transport):
         self.transport = transport
@@ -83,8 +83,8 @@ class KexGroup1(object):
         while 1:
             x_bytes = self.transport.rng.read(128)
             x_bytes = int2byte(ord(x_bytes[0]) & 0x7f) + x_bytes[1:]
-            if (x_bytes[:8] != '\x7F\xFF\xFF\xFF\xFF\xFF\xFF\xFF') and \
-                   (x_bytes[:8] != '\x00\x00\x00\x00\x00\x00\x00\x00'):
+            if (x_bytes[:8] != b'\x7F\xFF\xFF\xFF\xFF\xFF\xFF\xFF') and \
+                   (x_bytes[:8] != b'\x00\x00\x00\x00\x00\x00\x00\x00'):
                 break
         self.x = util.inflate_long(x_bytes)
 

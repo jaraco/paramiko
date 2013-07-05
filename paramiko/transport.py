@@ -199,51 +199,51 @@ class Transport (threading.Thread):
     across a single session (and often are, in the case of port forwardings).
     """
 
-    _PROTO_ID = '2.0'
-    _CLIENT_ID = 'paramiko_%s' % (paramiko.__version__)
+    _PROTO_ID = b'2.0'
+    _CLIENT_ID = b'paramiko_' + paramiko.__version__
 
-    _preferred_ciphers = ( 'aes128-ctr', 'aes256-ctr', 'aes128-cbc', 'blowfish-cbc', 'aes256-cbc', '3des-cbc',
-        'arcfour128', 'arcfour256' )
-    _preferred_macs = ( 'hmac-sha1', 'hmac-md5', 'hmac-sha1-96', 'hmac-md5-96' )
-    _preferred_keys = ( 'ssh-rsa', 'ssh-dss' )
-    _preferred_kex = ( 'diffie-hellman-group1-sha1', 'diffie-hellman-group-exchange-sha1' )
-    _preferred_compression = ( 'none', )
+    _preferred_ciphers = ( b'aes128-ctr', b'aes256-ctr', b'aes128-cbc', b'blowfish-cbc', b'aes256-cbc', b'3des-cbc',
+        b'arcfour128', b'arcfour256' )
+    _preferred_macs = ( b'hmac-sha1', b'hmac-md5', b'hmac-sha1-96', b'hmac-md5-96' )
+    _preferred_keys = ( b'ssh-rsa', b'ssh-dss' )
+    _preferred_kex = ( b'diffie-hellman-group1-sha1', b'diffie-hellman-group-exchange-sha1' )
+    _preferred_compression = ( b'none', )
 
     _cipher_info = {
-        'aes128-ctr': { 'class': AES, 'mode': AES.MODE_CTR, 'block-size': 16, 'key-size': 16 },
-        'aes256-ctr': { 'class': AES, 'mode': AES.MODE_CTR, 'block-size': 16, 'key-size': 32 },
-        'blowfish-cbc': { 'class': Blowfish, 'mode': Blowfish.MODE_CBC, 'block-size': 8, 'key-size': 16 },
-        'aes128-cbc': { 'class': AES, 'mode': AES.MODE_CBC, 'block-size': 16, 'key-size': 16 },
-        'aes256-cbc': { 'class': AES, 'mode': AES.MODE_CBC, 'block-size': 16, 'key-size': 32 },
-        '3des-cbc': { 'class': DES3, 'mode': DES3.MODE_CBC, 'block-size': 8, 'key-size': 24 },
-        'arcfour128': { 'class': ARC4, 'mode': None, 'block-size': 8, 'key-size': 16 },
-        'arcfour256': { 'class': ARC4, 'mode': None, 'block-size': 8, 'key-size': 32 },
+        b'aes128-ctr': { b'class': AES, b'mode': AES.MODE_CTR, b'block-size': 16, b'key-size': 16 },
+        b'aes256-ctr': { b'class': AES, b'mode': AES.MODE_CTR, b'block-size': 16, b'key-size': 32 },
+        b'blowfish-cbc': { b'class': Blowfish, b'mode': Blowfish.MODE_CBC, b'block-size': 8, b'key-size': 16 },
+        b'aes128-cbc': { b'class': AES, b'mode': AES.MODE_CBC, b'block-size': 16, b'key-size': 16 },
+        b'aes256-cbc': { b'class': AES, b'mode': AES.MODE_CBC, b'block-size': 16, b'key-size': 32 },
+        b'3des-cbc': { b'class': DES3, b'mode': DES3.MODE_CBC, b'block-size': 8, b'key-size': 24 },
+        b'arcfour128': { b'class': ARC4, b'mode': None, b'block-size': 8, b'key-size': 16 },
+        b'arcfour256': { b'class': ARC4, b'mode': None, b'block-size': 8, b'key-size': 32 },
         }
 
     _mac_info = {
-        'hmac-sha1': { 'class': SHA, 'size': 20 },
-        'hmac-sha1-96': { 'class': SHA, 'size': 12 },
-        'hmac-md5': { 'class': MD5, 'size': 16 },
-        'hmac-md5-96': { 'class': MD5, 'size': 12 },
+        b'hmac-sha1': { b'class': SHA, b'size': 20 },
+        b'hmac-sha1-96': { b'class': SHA, b'size': 12 },
+        b'hmac-md5': { b'class': MD5, b'size': 16 },
+        b'hmac-md5-96': { b'class': MD5, b'size': 12 },
         }
 
     _key_info = {
-        'ssh-rsa': RSAKey,
-        'ssh-dss': DSSKey,
+        b'ssh-rsa': RSAKey,
+        b'ssh-dss': DSSKey,
         }
 
     _kex_info = {
-        'diffie-hellman-group1-sha1': KexGroup1,
-        'diffie-hellman-group-exchange-sha1': KexGex,
+        b'diffie-hellman-group1-sha1': KexGroup1,
+        b'diffie-hellman-group-exchange-sha1': KexGex,
         }
 
     _compression_info = {
         # zlib@openssh.com is just zlib, but only turned on after a successful
         # authentication.  openssh servers may only offer this type because
         # they've had troubles with security holes in zlib in the past.
-        'zlib@openssh.com': ( ZlibCompressor, ZlibDecompressor ),
-        'zlib': ( ZlibCompressor, ZlibDecompressor ),
-        'none': ( None, None ),
+        b'zlib@openssh.com': ( ZlibCompressor, ZlibDecompressor ),
+        b'zlib': ( ZlibCompressor, ZlibDecompressor ),
+        b'none': ( None, None ),
     }
 
 
@@ -279,7 +279,7 @@ class Transport (threading.Thread):
         """
         if isinstance(sock, string_types):
             # convert "host:port" into (host, port)
-            hl = sock.split(':', 1)
+            hl = sock.split(b':', 1)
             if len(hl) == 1:
                 sock = (hl[0], 22)
             else:
@@ -318,9 +318,9 @@ class Transport (threading.Thread):
 
         # negotiated crypto parameters
         self.packetizer = Packetizer(sock)
-        self.local_version = 'SSH-' + self._PROTO_ID + '-' + self._CLIENT_ID
-        self.remote_version = ''
-        self.local_cipher = self.remote_cipher = ''
+        self.local_version = b'SSH-' + self._PROTO_ID + b'-' + self._CLIENT_ID
+        self.remote_version = b''
+        self.local_cipher = self.remote_cipher = b''
         self.local_kex_init = self.remote_kex_init = None
         self.local_mac = self.remote_mac = None
         self.local_compression = self.remote_compression = None
@@ -381,7 +381,7 @@ class Transport (threading.Thread):
         if not self.active:
             out += ' (unconnected)'
         else:
-            if self.local_cipher != '':
+            if self.local_cipher != b'':
                 out += ' (cipher %s, %d bits)' % (self.local_cipher,
                                                   self._cipher_info[self.local_cipher]['key-size'] * 8)
             if self.is_authenticated():
@@ -597,7 +597,7 @@ class Transport (threading.Thread):
         """
         Transport._modulus_pack = ModulusPack(rng)
         # places to look for the openssh "moduli" file
-        file_list = [ '/etc/ssh/moduli', '/usr/local/etc/moduli' ]
+        file_list = [ b'/etc/ssh/moduli', b'/usr/local/etc/moduli' ]
         if filename is not None:
             file_list.insert(0, filename)
         for fn in file_list:
@@ -662,7 +662,7 @@ class Transport (threading.Thread):
         @raise SSHException: if the request is rejected or the session ends
             prematurely
         """
-        return self.open_channel('session')
+        return self.open_channel(b'session')
 
     def open_x11_channel(self, src_addr=None):
         """
@@ -678,7 +678,7 @@ class Transport (threading.Thread):
         @raise SSHException: if the request is rejected or the session ends
             prematurely
         """
-        return self.open_channel('x11', src_addr=src_addr)
+        return self.open_channel(b'x11', src_addr=src_addr)
 
     def open_forward_agent_channel(self):
         """
@@ -692,7 +692,7 @@ class Transport (threading.Thread):
         @raise SSHException: if the request is rejected or the session ends
             prematurely
         """
-        return self.open_channel('auth-agent@openssh.com')
+        return self.open_channel(b'auth-agent@openssh.com')
 
     def open_forwarded_tcpip_channel(self, xxx_todo_changeme, xxx_todo_changeme1):
         """
@@ -707,7 +707,7 @@ class Transport (threading.Thread):
         """
         (src_addr, src_port) = xxx_todo_changeme
         (dest_addr, dest_port) = xxx_todo_changeme1
-        return self.open_channel('forwarded-tcpip', (dest_addr, dest_port), (src_addr, src_port))
+        return self.open_channel(b'forwarded-tcpip', (dest_addr, dest_port), (src_addr, src_port))
 
     def open_channel(self, kind, dest_addr=None, src_addr=None):
         """
@@ -743,12 +743,12 @@ class Transport (threading.Thread):
             m.add_int(chanid)
             m.add_int(self.window_size)
             m.add_int(self.max_packet_size)
-            if (kind == 'forwarded-tcpip') or (kind == 'direct-tcpip'):
+            if (kind == b'forwarded-tcpip') or (kind == b'direct-tcpip'):
                 m.add_string(dest_addr[0])
                 m.add_int(dest_addr[1])
                 m.add_string(src_addr[0])
                 m.add_int(src_addr[1])
-            elif kind == 'x11':
+            elif kind == b'x11':
                 m.add_string(src_addr[0])
                 m.add_int(src_addr[1])
             chan = Channel(chanid)
@@ -838,7 +838,7 @@ class Transport (threading.Thread):
         if not self.active:
             return
         self._tcp_handler = None
-        self.global_request('cancel-tcpip-forward', (address, port), wait=True)
+        self.global_request(b'cancel-tcpip-forward', (address, port), wait=True)
 
     def open_sftp_client(self):
         """
@@ -907,7 +907,7 @@ class Transport (threading.Thread):
         @type interval: int
         """
         self.packetizer.set_keepalive(interval,
-            lambda x=weakref.proxy(self): x.global_request('keepalive@lag.net', wait=False))
+            lambda x=weakref.proxy(self): x.global_request(b'keepalive@lag.net', wait=False))
 
     def global_request(self, kind, data=None, wait=True):
         """
@@ -1190,7 +1190,7 @@ class Transport (threading.Thread):
             return self.auth_handler.wait_for_response(my_event)
         except BadAuthenticationType as x:
             # if password auth isn't allowed, but keyboard-interactive *is*, try to fudge it
-            if not fallback or ('keyboard-interactive' not in x.allowed_types):
+            if not fallback or (b'keyboard-interactive' not in x.allowed_types):
                 raise
             try:
                 def handler(title, instructions, fields):
@@ -1376,9 +1376,9 @@ class Transport (threading.Thread):
         @since: 1.5.2
         """
         if compress:
-            self._preferred_compression = ( 'zlib@openssh.com', 'zlib', 'none' )
+            self._preferred_compression = ( b'zlib@openssh.com', b'zlib', b'none' )
         else:
-            self._preferred_compression = ( 'none', )
+            self._preferred_compression = ( b'none', )
 
     def getpeername(self):
         """
@@ -1492,19 +1492,19 @@ class Transport (threading.Thread):
     def _get_cipher(self, name, key, iv):
         if name not in self._cipher_info:
             raise SSHException('Unknown client cipher ' + name)
-        if name in ('arcfour128', 'arcfour256'):
+        if name in (b'arcfour128', b'arcfour256'):
             # arcfour cipher
-            cipher = self._cipher_info[name]['class'].new(key)
+            cipher = self._cipher_info[name][b'class'].new(key)
             # as per RFC 4345, the first 1536 bytes of keystream
             # generated by the cipher MUST be discarded
-            cipher.encrypt(" " * 1536)
+            cipher.encrypt(b' ' * 1536)
             return cipher
-        elif name.endswith("-ctr"):
+        elif name.endswith(b'-ctr'):
             # CTR modes, we need a counter
-            counter = Counter.new(nbits=self._cipher_info[name]['block-size'] * 8, initial_value=util.inflate_long(iv, True))
-            return self._cipher_info[name]['class'].new(key, self._cipher_info[name]['mode'], iv, counter)
+            counter = Counter.new(nbits=self._cipher_info[name][b'block-size'] * 8, initial_value=util.inflate_long(iv, True))
+            return self._cipher_info[name][b'class'].new(key, self._cipher_info[name][b'mode'], iv, counter)
         else:
-            return self._cipher_info[name]['class'].new(key, self._cipher_info[name]['mode'], iv)
+            return self._cipher_info[name][b'class'].new(key, self._cipher_info[name][b'mode'], iv)
 
     def _set_forward_agent_handler(self, handler):
         if handler is None:
@@ -1559,7 +1559,7 @@ class Transport (threading.Thread):
             self._log(DEBUG, 'starting thread (client mode): %s' % hex(id(self) & 0xffffffff))
         try:
             try:
-                self.packetizer.write_all(self.local_version + '\r\n')
+                self.packetizer.write_all(self.local_version + b'\r\n')
                 self._check_banner()
                 self._send_kex_init()
                 self._expect_packet(MSG_KEXINIT)
@@ -1687,26 +1687,26 @@ class Transport (threading.Thread):
                 raise
             except Exception as x:
                 raise SSHException('Error reading SSH protocol banner' + str(x))
-            if buf[:4] == 'SSH-':
+            if buf[:4] == b'SSH-':
                 break
-            self._log(DEBUG, 'Banner: ' + buf)
-        if buf[:4] != 'SSH-':
-            raise SSHException('Indecipherable protocol version "' + buf + '"')
+            self._log(DEBUG, 'Banner: %s' % buf)
+        if buf[:4] != b'SSH-':
+            raise SSHException('Indecipherable protocol version "%s"' % buf)
         # save this server version string for later
         self.remote_version = buf
         # pull off any attached comment
-        comment = ''
-        i = buf.find(' ')
+        comment = b''
+        i = buf.find(b' ')
         if i >= 0:
             comment = buf[i+1:]
             buf = buf[:i]
         # parse out version string and make sure it matches
-        segs = buf.split('-', 2)
+        segs = buf.split(b'-', 2)
         if len(segs) < 3:
             raise SSHException('Invalid SSH banner')
         version = segs[1]
         client = segs[2]
-        if version != '1.99' and version != '2.0':
+        if version != b'1.99' and version != b'2.0':
             raise SSHException('Incompatible version (%s instead of 2.0)' % (version,))
         self._log(INFO, 'Connected (version %s, client %s)' % (version, client))
 
@@ -1725,7 +1725,7 @@ class Transport (threading.Thread):
             if (self._modulus_pack is None) and ('diffie-hellman-group-exchange-sha1' in self._preferred_kex):
                 # can't do group-exchange if we don't have a pack of potential primes
                 pkex = list(self.get_security_options().kex)
-                pkex.remove('diffie-hellman-group-exchange-sha1')
+                pkex.remove(b'diffie-hellman-group-exchange-sha1')
                 self.get_security_options().kex = pkex
             available_server_keys = list(filter(self.server_key_dict.keys().__contains__,
                                            self._preferred_keys))
@@ -1852,23 +1852,23 @@ class Transport (threading.Thread):
         "switch on newly negotiated encryption parameters for inbound traffic"
         block_size = self._cipher_info[self.remote_cipher]['block-size']
         if self.server_mode:
-            IV_in = self._compute_key('A', block_size)
-            key_in = self._compute_key('C', self._cipher_info[self.remote_cipher]['key-size'])
+            IV_in = self._compute_key(b'A', block_size)
+            key_in = self._compute_key(b'C', self._cipher_info[self.remote_cipher][b'key-size'])
         else:
-            IV_in = self._compute_key('B', block_size)
-            key_in = self._compute_key('D', self._cipher_info[self.remote_cipher]['key-size'])
+            IV_in = self._compute_key(b'B', block_size)
+            key_in = self._compute_key(b'D', self._cipher_info[self.remote_cipher][b'key-size'])
         engine = self._get_cipher(self.remote_cipher, key_in, IV_in)
-        mac_size = self._mac_info[self.remote_mac]['size']
-        mac_engine = self._mac_info[self.remote_mac]['class']
+        mac_size = self._mac_info[self.remote_mac][b'size']
+        mac_engine = self._mac_info[self.remote_mac][b'class']
         # initial mac keys are done in the hash's natural size (not the potentially truncated
         # transmission size)
         if self.server_mode:
-            mac_key = self._compute_key('E', mac_engine.digest_size)
+            mac_key = self._compute_key(b'E', mac_engine.digest_size)
         else:
-            mac_key = self._compute_key('F', mac_engine.digest_size)
+            mac_key = self._compute_key(b'F', mac_engine.digest_size)
         self.packetizer.set_inbound_cipher(engine, block_size, mac_engine, mac_size, mac_key)
         compress_in = self._compression_info[self.remote_compression][1]
-        if (compress_in is not None) and ((self.remote_compression != 'zlib@openssh.com') or self.authenticated):
+        if (compress_in is not None) and ((self.remote_compression != b'zlib@openssh.com') or self.authenticated):
             self._log(DEBUG, 'Switching on inbound compression ...')
             self.packetizer.set_inbound_compressor(compress_in())
 
@@ -1877,26 +1877,26 @@ class Transport (threading.Thread):
         m = Message()
         m.add_byte(int2byte(MSG_NEWKEYS))
         self._send_message(m)
-        block_size = self._cipher_info[self.local_cipher]['block-size']
+        block_size = self._cipher_info[self.local_cipher][b'block-size']
         if self.server_mode:
-            IV_out = self._compute_key('B', block_size)
-            key_out = self._compute_key('D', self._cipher_info[self.local_cipher]['key-size'])
+            IV_out = self._compute_key(b'B', block_size)
+            key_out = self._compute_key(b'D', self._cipher_info[self.local_cipher][b'key-size'])
         else:
-            IV_out = self._compute_key('A', block_size)
-            key_out = self._compute_key('C', self._cipher_info[self.local_cipher]['key-size'])
+            IV_out = self._compute_key(b'A', block_size)
+            key_out = self._compute_key(b'C', self._cipher_info[self.local_cipher][b'key-size'])
         engine = self._get_cipher(self.local_cipher, key_out, IV_out)
-        mac_size = self._mac_info[self.local_mac]['size']
-        mac_engine = self._mac_info[self.local_mac]['class']
+        mac_size = self._mac_info[self.local_mac][b'size']
+        mac_engine = self._mac_info[self.local_mac][b'class']
         # initial mac keys are done in the hash's natural size (not the potentially truncated
         # transmission size)
         if self.server_mode:
-            mac_key = self._compute_key('F', mac_engine.digest_size)
+            mac_key = self._compute_key(b'F', mac_engine.digest_size)
         else:
-            mac_key = self._compute_key('E', mac_engine.digest_size)
-        sdctr = self.local_cipher.endswith('-ctr')
+            mac_key = self._compute_key(b'E', mac_engine.digest_size)
+        sdctr = self.local_cipher.endswith(b'-ctr')
         self.packetizer.set_outbound_cipher(engine, block_size, mac_engine, mac_size, mac_key, sdctr)
         compress_out = self._compression_info[self.local_compression][0]
-        if (compress_out is not None) and ((self.local_compression != 'zlib@openssh.com') or self.authenticated):
+        if (compress_out is not None) and ((self.local_compression != b'zlib@openssh.com') or self.authenticated):
             self._log(DEBUG, 'Switching on outbound compression ...')
             self.packetizer.set_outbound_compressor(compress_out())
         if not self.packetizer.need_rekey():
@@ -1907,7 +1907,7 @@ class Transport (threading.Thread):
     def _auth_trigger(self):
         self.authenticated = True
         # delayed initiation of compression
-        if self.local_compression == 'zlib@openssh.com':
+        if self.local_compression == b'zlib@openssh.com':
             compress_out = self._compression_info[self.local_compression][0]
             self._log(DEBUG, 'Switching on outbound compression ...')
             self.packetizer.set_outbound_compressor(compress_out())
@@ -1954,13 +1954,13 @@ class Transport (threading.Thread):
         if not self.server_mode:
             self._log(DEBUG, 'Rejecting "%s" global request from server.' % kind)
             ok = False
-        elif kind == 'tcpip-forward':
+        elif kind == b'tcpip-forward':
             address = m.get_string()
             port = m.get_int()
             ok = self.server_object.check_port_forward_request(address, port)
             if ok != False:
                 ok = (ok,)
-        elif kind == 'cancel-tcpip-forward':
+        elif kind == b'cancel-tcpip-forward':
             address = m.get_string()
             port = m.get_int()
             self.server_object.cancel_port_forward_request(address, port)
@@ -2017,7 +2017,7 @@ class Transport (threading.Thread):
         reason = m.get_int()
         reason_str = m.get_string()
         lang = m.get_string()
-        reason_text = CONNECTION_FAILED_CODE.get(reason, '(unknown code)')
+        reason_text = CONNECTION_FAILED_CODE.get(reason, b'(unknown code)')
         self._log(INFO, 'Secsh channel %d open FAILED: %s: %s' % (chanid, reason_str, reason_text))
         self.lock.acquire()
         try:
@@ -2037,14 +2037,14 @@ class Transport (threading.Thread):
         initial_window_size = m.get_int()
         max_packet_size = m.get_int()
         reject = False
-        if (kind == 'auth-agent@openssh.com') and (self._forward_agent_handler is not None):
+        if (kind == b'auth-agent@openssh.com') and (self._forward_agent_handler is not None):
             self._log(DEBUG, 'Incoming forward agent connection')
             self.lock.acquire()
             try:
                 my_chanid = self._next_channel()
             finally:
                 self.lock.release()
-        elif (kind == 'x11') and (self._x11_handler is not None):
+        elif (kind == b'x11') and (self._x11_handler is not None):
             origin_addr = m.get_string()
             origin_port = m.get_int()
             self._log(DEBUG, 'Incoming x11 connection from %s:%d' % (origin_addr, origin_port))
@@ -2053,7 +2053,7 @@ class Transport (threading.Thread):
                 my_chanid = self._next_channel()
             finally:
                 self.lock.release()
-        elif (kind == 'forwarded-tcpip') and (self._tcp_handler is not None):
+        elif (kind == b'forwarded-tcpip') and (self._tcp_handler is not None):
             server_addr = m.get_string()
             server_port = m.get_int()
             origin_addr = m.get_string()
@@ -2074,7 +2074,7 @@ class Transport (threading.Thread):
                 my_chanid = self._next_channel()
             finally:
                 self.lock.release()
-            if kind == 'direct-tcpip':
+            if kind == b'direct-tcpip':
                 # handle direct-tcpip requests comming from the client
                 dest_addr = m.get_string()
                 dest_port = m.get_int()
@@ -2116,11 +2116,11 @@ class Transport (threading.Thread):
         m.add_int(self.max_packet_size)
         self._send_message(m)
         self._log(INFO, 'Secsh channel %d (%s) opened.', my_chanid, kind)
-        if kind == 'auth-agent@openssh.com':
+        if kind == b'auth-agent@openssh.com':
             self._forward_agent_handler(chan)
-        elif kind == 'x11':
+        elif kind == b'x11':
             self._x11_handler(chan, (origin_addr, origin_port))
-        elif kind == 'forwarded-tcpip':
+        elif kind == b'forwarded-tcpip':
             chan.origin_addr = (origin_addr, origin_port)
             self._tcp_handler(chan, (origin_addr, origin_port), (server_addr, server_port))
         else:

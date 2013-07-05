@@ -46,7 +46,7 @@ Host spoo.example.com
 Crazy something else
 """
 
-test_hosts_file = """\
+test_hosts_file = b"""\
 secure.example.com ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAIEA1PD6U2/TVxET6lkpKhOk5r\
 9q/kAYG6sP9f5zuUYP8i7FOFp/6ncCEbbtg/lB+A3iidyxoSWl+9jtoyyDOOVX4UIDV9G11Ml8om3\
 D+jrpI9cycZHqilK0HmxDeCuxbwyMuaCygU9gS2qoRvNLWZk70OpIKSSpBo0Wl3/XUmz9uhc=
@@ -141,7 +141,7 @@ class UtilTest(ParamikoTest):
         self.assertEquals(bytearray(x), bytearray.fromhex(u'9110e2f6793b69363e58173e9436b13a5a4b339005741d5c680e505f57d871347b4239f14fb5c46e857d5e100424873ba849ac699cea98d729e57b3e84378e8b'))
 
     def test_5_host_keys(self):
-        f = open('hostfile.temp', 'w')
+        f = open('hostfile.temp', 'wb')
         f.write(test_hosts_file)
         f.close()
         try:
@@ -149,8 +149,8 @@ class UtilTest(ParamikoTest):
             self.assertEquals(2, len(hostdict))
             self.assertEquals(1, len(hostdict.values()[0]))
             self.assertEquals(1, len(hostdict.values()[1]))
-            fp = hexlify(hostdict['secure.example.com']['ssh-rsa'].get_fingerprint()).upper()
-            self.assertEquals('E6684DB30E109B67B70FF1DC5C7F1363', fp)
+            fp = hexlify(hostdict[b'secure.example.com'][b'ssh-rsa'].get_fingerprint()).upper()
+            self.assertEquals(b'E6684DB30E109B67B70FF1DC5C7F1363', fp)
         finally:
             os.unlink('hostfile.temp')
 

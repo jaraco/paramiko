@@ -289,22 +289,22 @@ class Counter (object):
         # start with value - 1 so we don't have to store intermediate values when counting
         # could the iv be 0?
         if initial_value == 0:
-            self.value = array.array('c', '\xFF' * self.blocksize)
+            self.value = array.array('c', b'\xFF' * self.blocksize)
         else:
             x = deflate_long(initial_value - 1, add_sign_padding=False)
-            self.value = array.array('c', '\x00' * (self.blocksize - len(x)) + x)
+            self.value = array.array('c', b'\x00' * (self.blocksize - len(x)) + x)
 
     def __call__(self):
         """Increament the counter and return the new value"""
         i = self.blocksize - 1
         while i > -1:
             c = self.value[i] = int2byte((ord(self.value[i]) + 1) % 256)
-            if c != '\x00':
+            if c != b'\x00':
                 return self.value.tostring()
             i -= 1
         # counter reset
         x = deflate_long(self.overflow, add_sign_padding=False)
-        self.value = array.array('c', '\x00' * (self.blocksize - len(x)) + x)
+        self.value = array.array('c', b'\x00' * (self.blocksize - len(x)) + x)
         return self.value.tostring()
 
     def new(cls, nbits, initial_value=1, overflow=0):

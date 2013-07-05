@@ -130,13 +130,13 @@ io_sleep = 0.01
 
 import warnings
 
-from six import PY3, text_type
+from six import PY3, text_type, integer_types
 
 _ord = ord
 
 
 def ord(n):
-    if PY3:
+    if PY3 and isinstance(n, integer_types):
         return n
     return _ord(n)
 

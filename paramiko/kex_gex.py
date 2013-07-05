@@ -39,7 +39,7 @@ _MSG_KEXDH_GEX_REQUEST_OLD, _MSG_KEXDH_GEX_GROUP, _MSG_KEXDH_GEX_INIT, \
 
 class KexGex (object):
 
-    name = 'diffie-hellman-group-exchange-sha1'
+    name = b'diffie-hellman-group-exchange-sha1'
     min_bits = 1024
     max_bits = 8192
     preferred_bits = 2048
