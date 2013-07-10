@@ -83,6 +83,8 @@ class SecurityOptions (object):
     tuple to one of the fields, C{TypeError} will be raised.
     """
 
+    __slots__ = '_transport',
+
     def __init__(self, transport):
         self._transport = transport
 
